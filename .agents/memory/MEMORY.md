@@ -1,0 +1,1 @@
+- [Cakupan dan rujukan kompetensi](competency-scope.md) — kerangka lintas klasifikasi lebih dahulu; unit dokumen bukan paket skema per jenjang.

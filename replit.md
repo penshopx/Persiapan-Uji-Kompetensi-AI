@@ -1,44 +1,53 @@
-# [Project name]
+# SIGAP Kompetensi
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Ruang persiapan uji kompetensi konstruksi dengan katalog sumber standar dan latihan berbantuan peran agen AI spesialis.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/sigap-kompetensi run dev` — frontend, via its managed workflow
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- AI credentials are managed by Replit AI Integrations; do not print or manually modify them.
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
 - API: Express 5
-- DB: PostgreSQL + Drizzle ORM
+- Available DB: PostgreSQL + Drizzle ORM; current catalog is a versioned reference dataset, and current study history is browser-local.
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/sigap-kompetensi` — Indonesian React frontend.
+- `artifacts/api-server/src/lib/competency-catalog.ts` — catalog metadata.
+- `artifacts/api-server/src/lib/competency-sources.json` — source-derived unit excerpts from the two supplied PDF documents.
+- `artifacts/api-server/src/lib/competency-agents.ts` — bounded source retrieval, examiner and evaluator pipeline.
+- `lib/api-spec/openapi.yaml` — API contract; regenerate clients after edits.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Start with a bounded, inspectable practice pipeline, not unconstrained autonomous agents that can browse or execute commands.
+- OpenAI through Replit AI Integrations currently powers generation. MultiClaw/Hermes is not installed or connected; do not claim otherwise.
+- Study records are stored in the participant's browser only. There is no user-account or cross-device persistence yet.
+- Current AI request caps are process-local safeguards, not production account quotas. Authenticated persistent quotas are needed before a public launch.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Dashboard, searchable catalog, source references, role/unit selection, scenario questions, text-answer feedback, and locally retained study history. This is preparation software, not a certification authority.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+Interface and responses are in Indonesian. Keep dark/light-blue contrast and legibility.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Managed artifact workflows supply PORT and BASE_PATH. Do not create duplicate workflows.
+- The originally attached ZIP was not present among transferred project files; its contents have not been imported.
 
 ## Pointers
 

@@ -5,6 +5,7 @@
     "tsBuildInfoFile": ".tsbuildinfo",
     "outDir": "dist",
     "rootDir": "src",
+    "resolveJsonModule": true,
     "types": ["node"]
   },
   "include": ["src"],
@@ -14,6 +15,9 @@
     },
     {
       "path": "../../lib/api-zod"
+    },
+    {
+      "path": "../../lib/integrations-openai-ai-server"
     }
   ]
 }
