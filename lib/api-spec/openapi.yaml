@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: competency
+    description: Katalog klasifikasi, jabatan, standar, dan unit kompetensi
+  - name: agents
+    description: Latihan uji kompetensi melalui agen AI spesialis
 paths:
   /healthz:
     get:
@@ -24,6 +28,60 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /competency/catalog:
+    get:
+      operationId: getCompetencyCatalog
+      tags: [competency]
+      summary: Mendapatkan katalog kompetensi lintas klasifikasi
+      responses:
+        "200":
+          description: Katalog jabatan, standar, dan unit yang sudah tercatat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompetencyCatalog"
+  /competency/summary:
+    get:
+      operationId: getCompetencySummary
+      tags: [competency]
+      summary: Mendapatkan ringkasan kesiapan katalog
+      responses:
+        "200":
+          description: Ringkasan cakupan data dan agen spesialis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompetencySummary"
+  /agents/practice-turn:
+    post:
+      operationId: createPracticeTurn
+      tags: [agents]
+      summary: Memulai atau melanjutkan satu giliran latihan kompetensi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeTurnInput"
+      responses:
+        "200":
+          description: Pertanyaan latihan atau evaluasi jawaban
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeTurnResponse"
+        "400":
+          description: Masukan tidak valid atau unit belum tersedia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Batas penggunaan sementara tercapai
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +91,235 @@ components:
           type: string
       required:
         - status
+    CompetencyClassification:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        available:
+          type: boolean
+        roleCount:
+          type: integer
+        sourceStatus:
+          type: string
+      required: [id, name, description, available, roleCount, sourceStatus]
+    CompetencyStandard:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        standardType:
+          type: string
+        code:
+          type: string
+        year:
+          type: integer
+        registrationCode:
+          type: ["string", "null"]
+        sourceUrl:
+          type: string
+        status:
+          type: string
+        statusNote:
+          type: string
+      required:
+        [id, title, standardType, code, year, registrationCode, sourceUrl, status, statusNote]
+    JobRole:
+      type: object
+      properties:
+        id:
+          type: string
+        classificationId:
+          type: string
+        family:
+          type: string
+        title:
+          type: string
+        qualification:
+          type: string
+        level:
+          type: integer
+        standardId:
+          type: string
+        unitCount:
+          type: integer
+        readiness:
+          type: string
+      required:
+        [id, classificationId, family, title, qualification, level, standardId, unitCount, readiness]
+    CompetencyUnit:
+      type: object
+      properties:
+        code:
+          type: string
+        title:
+          type: string
+        standardId:
+          type: string
+        sourceNote:
+          type: string
+      required: [code, title, standardId, sourceNote]
+    CompetencyCatalog:
+      type: object
+      properties:
+        classifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompetencyClassification"
+        standards:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompetencyStandard"
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobRole"
+        units:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompetencyUnit"
+      required: [classifications, standards, roles, units]
+    AgentProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        responsibility:
+          type: string
+      required: [id, name, responsibility]
+    CompetencySummary:
+      type: object
+      properties:
+        classificationCount:
+          type: integer
+        roleCount:
+          type: integer
+        unitCount:
+          type: integer
+        reviewCount:
+          type: integer
+        agents:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentProfile"
+      required: [classificationCount, roleCount, unitCount, reviewCount, agents]
+    PracticeHistoryMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required: [role, content]
+    PracticeTurnInput:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [start, answer]
+        mode:
+          type: string
+          enum: [practice, assessment]
+        roleId:
+          type: string
+        unitCode:
+          type: string
+        history:
+          type: array
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/PracticeHistoryMessage"
+        answer:
+          type: string
+          maxLength: 5000
+      required: [action, mode, roleId, unitCode, history]
+    PracticeEvaluation:
+      type: object
+      properties:
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        status:
+          type: string
+          enum: [needs_practice, developing, ready_for_practice]
+        strengths:
+          type: array
+          items:
+            type: string
+        gaps:
+          type: array
+          items:
+            type: string
+        evidenceChecklist:
+          type: array
+          items:
+            type: string
+        nextStep:
+          type: string
+      required: [score, status, strengths, gaps, evidenceChecklist, nextStep]
+    SourceCitation:
+      type: object
+      properties:
+        standardId:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+        unitCode:
+          type: string
+        note:
+          type: string
+      required: [standardId, title, url, unitCode, note]
+    AgentRun:
+      type: object
+      properties:
+        agentId:
+          type: string
+        agentName:
+          type: string
+        responsibility:
+          type: string
+        status:
+          type: string
+          enum: [complete, skipped]
+      required: [agentId, agentName, responsibility, status]
+    PracticeTurnResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        question:
+          type: ["string", "null"]
+        evaluation:
+          anyOf:
+            - $ref: "#/components/schemas/PracticeEvaluation"
+            - type: "null"
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceCitation"
+        agentRuns:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentRun"
+      required: [response, question, evaluation, citations, agentRuns]
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
 

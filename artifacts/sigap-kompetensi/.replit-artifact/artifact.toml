@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "SIGAP Kompetensi"
+description = "Aplikasi persiapan uji kompetensi berbasis standar kerja Indonesia. Mengelola klasifikasi bidang, jabatan, level, dokumen SKKNI/SKKK, unit kompetensi dan latihan asesmen agar dapat dikembangkan dengan agen AI spesialis yang memberi umpan balik terlacak ke sumber."
+version = "1.0.0"
+id = "artifacts/sigap-kompetensi"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19480
+
+[services.development]
+run = "pnpm --filter @workspace/sigap-kompetensi run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/sigap-kompetensi", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/sigap-kompetensi/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19480"
+BASE_PATH = "/"
