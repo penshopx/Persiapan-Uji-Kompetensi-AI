@@ -37,7 +37,7 @@ export default function Practice() {
   };
 
   const run = (action: 'start' | 'answer') => {
-    if (!sel || !role || !sel.unitCode) return;
+    if (!sel || !role?.practiceAvailable || !sel.unitCode) return;
     setErr(null);
     const prior: Msg[] = action === 'start' ? [] : messages.slice(-20);
     while (prior.reduce((total, message) => total + message.content.length, 0) > 30000) prior.shift();
@@ -76,8 +76,8 @@ export default function Practice() {
               <label className="block"><span className="mono text-xs uppercase text-primary">Peran</span>
                 <select data-testid="select-role" disabled={turn.isPending} className={field} value={sel?.roleId ?? ''} onChange={(e) => pickRole(e.target.value)}>
                   <option value="">Pilih peran</option>
-                  {data.classifications.filter((c) => c.available).map((c) => (
-                    <optgroup key={c.id} label={c.name}>{data.roles.filter((r) => r.classificationId === c.id).map((r) => <option key={r.id} value={r.id}>{r.title} (J{r.level})</option>)}</optgroup>
+                  {data.classifications.filter((c) => c.practiceRoleCount > 0).map((c) => (
+                    <optgroup key={c.id} label={c.name}>{data.roles.filter((r) => r.classificationId === c.id && r.practiceAvailable).map((r) => <option key={r.id} value={r.id}>{r.title} (J{r.level})</option>)}</optgroup>
                   ))}
                 </select></label>
               <label className="block"><span className="mono text-xs uppercase text-primary">Unit rujukan</span>
@@ -90,8 +90,9 @@ export default function Practice() {
                 ))}
               </div>
               {unit && <p className="text-xs text-muted-foreground">{unit.sourceNote}</p>}
+              <p className="text-xs text-muted-foreground">Hanya jabatan dengan unit sumber yang sudah diproses tersedia di pilihan latihan. Seluruh entri lainnya dapat ditelusuri di katalog.</p>
               {standard && <div className="border-l-2 border-amber-400 bg-amber-400/10 p-3 text-xs leading-relaxed text-amber-100"><b>{standard.status}</b><p className="mt-1">{standard.statusNote}</p></div>}
-              <button data-testid="button-start" disabled={!role || !sel?.unitCode || turn.isPending} onClick={() => run('start')} className="w-full bg-primary px-4 py-3 font-bold text-primary-foreground transition-transform active:scale-[.98] disabled:opacity-40">
+              <button data-testid="button-start" disabled={!role?.practiceAvailable || !sel?.unitCode || turn.isPending} onClick={() => run('start')} className="w-full bg-primary px-4 py-3 font-bold text-primary-foreground transition-transform active:scale-[.98] disabled:opacity-40">
                 {turn.isPending ? 'Agen sedang memproses…' : active ? 'Mulai ulang sesi' : 'Mulai sesi'}
               </button>
               <p data-testid="text-ai-notice" className="mono text-[11px] leading-relaxed text-muted-foreground">Setiap giliran memakai AI dan ditagihkan ke kredit Replit.</p>

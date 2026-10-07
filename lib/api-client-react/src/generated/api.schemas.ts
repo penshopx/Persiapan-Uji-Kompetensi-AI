@@ -15,6 +15,7 @@ export interface CompetencyClassification {
   description: string;
   available: boolean;
   roleCount: number;
+  practiceRoleCount: number;
   sourceStatus: string;
 }
 
@@ -23,10 +24,12 @@ export interface CompetencyStandard {
   title: string;
   standardType: string;
   code: string;
-  year: number;
+  /** @nullable */
+  year: number | null;
   /** @nullable */
   registrationCode: string | null;
-  sourceUrl: string;
+  /** @nullable */
+  sourceUrl: string | null;
   status: string;
   statusNote: string;
 }
@@ -41,6 +44,13 @@ export interface JobRole {
   standardId: string;
   unitCount: number;
   readiness: string;
+  subClassification: string;
+  reportedStandard: string;
+  reportedStandardStatus: string;
+  pkbRequired: boolean;
+  mvpPhase: string;
+  practiceAvailable: boolean;
+  reviewNotes: string[];
 }
 
 export interface CompetencyUnit {

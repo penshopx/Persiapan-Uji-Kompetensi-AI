@@ -1,4 +1,6 @@
 import sourceUnits from "./competency-sources.json";
+import importedCatalog from "./competency-import.json";
+import { createHash } from "node:crypto";
 import { GetCompetencyCatalogResponse, GetCompetencySummaryResponse } from "@workspace/api-zod";
 
 export const agents = [
@@ -9,7 +11,7 @@ export const agents = [
   { id: "coach", name: "Pelatih", responsibility: "Menerjemahkan hasil evaluasi menjadi langkah latihan berikutnya." },
 ];
 
-const standards = [
+const processedStandards = [
   {
     id: "skkni-196-2021",
     title: "SKKNI Jabatan Kerja Arsitek",
@@ -34,30 +36,70 @@ const standards = [
   },
 ];
 
-const roleRows = [
-  ["asisten-arsitek", "Asisten Arsitek", "Asisten Arsitek", "Ahli", 7, "skkni-196-2021"],
-  ["arsitek-madya", "Arsitek", "Arsitek Madya", "Ahli", 8, "skkni-196-2021"],
-  ["arsitek-utama", "Arsitek", "Arsitek Utama", "Ahli", 9, "skkni-196-2021"],
-  ["asisten-arsitek-freshgraduate", "Asisten Arsitek (Freshgraduate)", "Asisten Arsitek (Freshgraduate)", "Ahli", 7, "skkni-196-2021"],
-  ["asisten-pemula-arsitek", "Asisten Pemula Arsitek", "Asisten Pemula Arsitek", "Teknisi/Analis", 6, "skkni-196-2021"],
-  ["juru-gambar-level-2", "Juru Gambar Arsitektur", "Juru Gambar Arsitektur Level 2", "Operator", 2, "skkk-36-2022"],
-  ["juru-gambar-level-3", "Juru Gambar Arsitektur", "Juru Gambar Arsitektur Level 3", "Operator", 3, "skkk-36-2022"],
-  ["juru-gambar-muda", "Juru Gambar Arsitektur", "Juru Gambar Arsitektur Muda", "Teknisi/Analis", 4, "skkk-36-2022"],
-] as const;
+type Standard = ReturnType<typeof GetCompetencyCatalogResponse.parse>["standards"][number];
+const standardsById = new Map<string, Standard>(processedStandards.map(standard => [standard.id, standard]));
+const sourceLabels = new Map<string, Set<string>>();
+for (const row of importedCatalog.records) {
+  if (!row.sourceUrl) continue;
+  const labels = sourceLabels.get(row.sourceUrl) ?? new Set<string>();
+  labels.add(row.reportedStandard);
+  sourceLabels.set(row.sourceUrl, labels);
+}
+
+function standardFor(row: (typeof importedCatalog.records)[number]) {
+  const processed = processedStandards.find(standard => standard.sourceUrl === row.sourceUrl);
+  if (processed) return processed.id;
+  const id = `standar-${createHash("sha256").update(JSON.stringify([row.reportedStandard, row.sourceUrl])).digest("hex").slice(0, 16)}`;
+  if (!standardsById.has(id)) {
+    const years = [...new Set(row.reportedStandard.match(/\b(?:19|20)\d{2}\b/g) ?? [])];
+    standardsById.set(id, {
+      id, title: row.reportedStandard, code: row.reportedStandard,
+      standardType: /^SKKNI\b/i.test(row.reportedStandard) ? "SKKNI" : /SKK\s*Khusus|SKKK/i.test(row.reportedStandard) ? "SKKK" : "Rujukan skema",
+      year: years.length === 1 ? Number(years[0]) : null,
+      registrationCode: null, sourceUrl: row.sourceUrl,
+      status: row.sourceUrl ? "Dokumen belum diproses" : "Tautan sumber belum tersedia",
+      statusNote: "Rujukan berasal dari katalog unggahan. Label Final/Sementara adalah metadata katalog, bukan hasil verifikasi aplikasi. Isi dokumen, status berlaku terkini, dan pemetaan skema per jenjang belum diverifikasi; latihan AI belum diaktifkan.",
+    });
+  }
+  return id;
+}
+
+const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const roles = importedCatalog.records.map(row => {
+  const standardId = standardFor(row);
+  const unitCount = sourceUnits.filter(unit => unit.standardId === standardId).length;
+  const reviewNotes = [...row.reviewNotes];
+  if (row.sourceUrl && (sourceLabels.get(row.sourceUrl)?.size ?? 0) > 1) {
+    reviewNotes.push("Tautan dokumen yang sama tercatat dengan beberapa nama standar berbeda. Perlu pemeriksaan sumber; tidak dikoreksi otomatis.");
+  }
+  const practiceAvailable = unitCount > 0 && row.reportedStandardStatus === "Final" && reviewNotes.length === 0;
+  return {
+    id: row.id, classificationId: slug(row.classificationName), family: row.family,
+    title: row.title, qualification: row.qualification, level: row.level, standardId,
+    subClassification: row.subClassification, reportedStandard: row.reportedStandard,
+    reportedStandardStatus: row.reportedStandardStatus, pkbRequired: row.pkbRequired,
+    mvpPhase: row.mvpPhase, practiceAvailable, reviewNotes, unitCount,
+    readiness: practiceAvailable ? "Unit rujukan tersedia; pemetaan skema jenjang belum diverifikasi"
+      : reviewNotes.length ? "Perlu tinjauan data/sumber; latihan AI belum tersedia"
+      : "Dokumen dan unit belum diproses; latihan AI belum tersedia",
+  };
+});
 
 export const catalog = GetCompetencyCatalogResponse.parse({
-  classifications: [
-    { id: "arsitektur", name: "Arsitektur", description: "Arsitektural: perancangan, praktik arsitek, dan penggambaran.", available: true, roleCount: 8, sourceStatus: "2 dokumen rujukan; paket skema per jenjang belum diverifikasi" },
-    { id: "sipil", name: "Sipil", description: "Kerangka untuk jabatan dan unit kompetensi pekerjaan sipil.", available: false, roleCount: 0, sourceStatus: "Menunggu daftar jabatan dan dokumen standar" },
-    { id: "mekanikal", name: "Mekanikal", description: "Kerangka untuk jabatan dan unit kompetensi pekerjaan mekanikal.", available: false, roleCount: 0, sourceStatus: "Menunggu daftar jabatan dan dokumen standar" },
-    { id: "tata-lingkungan", name: "Tata Lingkungan", description: "Kerangka untuk jabatan dan unit kompetensi tata lingkungan.", available: false, roleCount: 0, sourceStatus: "Menunggu daftar jabatan dan dokumen standar" },
-  ],
-  standards,
-  roles: roleRows.map(([id, family, title, qualification, level, standardId]) => ({
-    id, classificationId: "arsitektur", family, title, qualification, level, standardId,
-    unitCount: sourceUnits.filter(unit => unit.standardId === standardId).length,
-    readiness: "Unit rujukan tersedia; pemetaan skema jenjang belum diverifikasi",
-  })),
+  classifications: [...new Set(importedCatalog.records.map(row => row.classificationName))].map(name => {
+    const id = slug(name);
+    const members = roles.filter(role => role.classificationId === id);
+    const practiceRoleCount = members.filter(role => role.practiceAvailable).length;
+    return {
+      id, name, description: `${new Set(members.map(role => role.subClassification)).size} subklasifikasi dari katalog jabatan unggahan.`,
+      available: members.length > 0, roleCount: members.length, practiceRoleCount,
+      sourceStatus: practiceRoleCount > 0
+        ? `${practiceRoleCount} entri memiliki unit rujukan untuk latihan; paket skema per jenjang belum diverifikasi`
+        : "Katalog tersedia; dokumen dan unit belum diproses untuk latihan AI",
+    };
+  }),
+  standards: [...standardsById.values()],
+  roles,
   units: sourceUnits.map(({ excerpt: _excerpt, ...unit }) => unit),
 });
 
@@ -73,6 +115,6 @@ export function getPracticeContext(roleId: string, unitCode: string) {
   const role = catalog.roles.find(role => role.id === roleId);
   const unit = sourceUnits.find(unit => unit.code === unitCode);
   const standard = catalog.standards.find(standard => standard.id === role?.standardId);
-  if (!role || !unit || !standard || unit.standardId !== standard.id) return null;
+  if (!role || !role.practiceAvailable || !unit || !standard?.sourceUrl || unit.standardId !== standard.id) return null;
   return { role, unit, standard };
 }

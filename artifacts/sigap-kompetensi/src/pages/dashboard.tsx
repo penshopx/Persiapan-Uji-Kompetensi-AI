@@ -12,7 +12,7 @@ export default function Dashboard() {
   const role = cat.data?.roles.find((r) => r.id === sel?.roleId);
   const last = hist[0];
   const stats = sum.data ? [
-    ['Klasifikasi', sum.data.classificationCount], ['Peran', sum.data.roleCount], ['Unit rujukan', sum.data.unitCount], ['Perlu ditinjau', sum.data.reviewCount],
+    ['Klasifikasi', sum.data.classificationCount], ['Entri jabatan', sum.data.roleCount], ['Unit rujukan', sum.data.unitCount], ['Rujukan ditinjau', sum.data.reviewCount],
   ] : [];
   return (
     <div className="space-y-10">
@@ -67,12 +67,12 @@ export default function Dashboard() {
           {cat.isLoading ? <Skeleton /> : cat.isError ? <ErrorBlock onRetry={() => cat.refetch()} /> : cat.data?.classifications.map((c, i) => (
             <div key={c.id} data-testid={`card-class-${c.id}`} className="rise grid gap-3 border border-border bg-card p-5 md:grid-cols-[1fr_auto] md:items-center" style={{ animationDelay: `${i * 70}ms` }}>
               <div>
-                <div className="flex flex-wrap items-center gap-3"><h3 className="text-xl font-extrabold">{c.name}</h3><SourceBadge text={c.available ? 'tersedia' : 'belum tersedia'} /></div>
+                <div className="flex flex-wrap items-center gap-3"><h3 className="text-xl font-extrabold">{c.name}</h3><SourceBadge text={c.available ? 'katalog tersedia' : 'belum tersedia'} /></div>
                 <p className="mt-1 text-muted-foreground">{c.description}</p>
                 <p className="mono mt-2 text-xs text-muted-foreground">Status sumber: {c.sourceStatus}</p>
               </div>
               {c.available ? (
-                <Link href={`/katalog?k=${encodeURIComponent(c.id)}`} data-testid={`link-class-${c.id}`} className="inline-flex items-center gap-2 border border-primary px-4 py-2 text-sm font-bold text-primary hover:bg-primary hover:text-primary-foreground">{c.roleCount} peran <ArrowRight className="h-4 w-4" /></Link>
+                <Link href={`/katalog?k=${encodeURIComponent(c.id)}`} data-testid={`link-class-${c.id}`} className="inline-flex items-center gap-2 border border-primary px-4 py-2 text-sm font-bold text-primary hover:bg-primary hover:text-primary-foreground">{c.roleCount} entri <ArrowRight className="h-4 w-4" /></Link>
               ) : <span className="mono text-sm text-muted-foreground">0 peran</span>}
             </div>
           ))}

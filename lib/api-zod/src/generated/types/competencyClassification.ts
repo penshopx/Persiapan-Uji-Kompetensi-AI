@@ -12,5 +12,6 @@ export interface CompetencyClassification {
   description: string;
   available: boolean;
   roleCount: number;
+  practiceRoleCount: number;
   sourceStatus: string;
 }

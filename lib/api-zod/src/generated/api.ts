@@ -27,6 +27,7 @@ export const GetCompetencyCatalogResponse = zod.object({
   "description": zod.string(),
   "available": zod.boolean(),
   "roleCount": zod.number().int(),
+  "practiceRoleCount": zod.number().int(),
   "sourceStatus": zod.string()
 })),
   "standards": zod.array(zod.object({
@@ -34,9 +35,9 @@ export const GetCompetencyCatalogResponse = zod.object({
   "title": zod.string(),
   "standardType": zod.string(),
   "code": zod.string(),
-  "year": zod.number().int(),
+  "year": zod.number().int().nullable(),
   "registrationCode": zod.string().nullable(),
-  "sourceUrl": zod.string(),
+  "sourceUrl": zod.string().nullable(),
   "status": zod.string(),
   "statusNote": zod.string()
 })),
@@ -49,7 +50,14 @@ export const GetCompetencyCatalogResponse = zod.object({
   "level": zod.number().int(),
   "standardId": zod.string(),
   "unitCount": zod.number().int(),
-  "readiness": zod.string()
+  "readiness": zod.string(),
+  "subClassification": zod.string(),
+  "reportedStandard": zod.string(),
+  "reportedStandardStatus": zod.string(),
+  "pkbRequired": zod.boolean(),
+  "mvpPhase": zod.string(),
+  "practiceAvailable": zod.boolean(),
+  "reviewNotes": zod.array(zod.string())
 })),
   "units": zod.array(zod.object({
   "code": zod.string(),

@@ -110,9 +110,11 @@ components:
           type: boolean
         roleCount:
           type: integer
+        practiceRoleCount:
+          type: integer
         sourceStatus:
           type: string
-      required: [id, name, description, available, roleCount, sourceStatus]
+      required: [id, name, description, available, roleCount, practiceRoleCount, sourceStatus]
     CompetencyStandard:
       type: object
       properties:
@@ -125,11 +127,11 @@ components:
         code:
           type: string
         year:
-          type: integer
+          type: ["integer", "null"]
         registrationCode:
           type: ["string", "null"]
         sourceUrl:
-          type: string
+          type: ["string", "null"]
         status:
           type: string
         statusNote:
@@ -157,8 +159,24 @@ components:
           type: integer
         readiness:
           type: string
+        subClassification:
+          type: string
+        reportedStandard:
+          type: string
+        reportedStandardStatus:
+          type: string
+        pkbRequired:
+          type: boolean
+        mvpPhase:
+          type: string
+        practiceAvailable:
+          type: boolean
+        reviewNotes:
+          type: array
+          items:
+            type: string
       required:
-        [id, classificationId, family, title, qualification, level, standardId, unitCount, readiness]
+        [id, classificationId, family, title, qualification, level, standardId, unitCount, readiness, subClassification, reportedStandard, reportedStandardStatus, pkbRequired, mvpPhase, practiceAvailable, reviewNotes]
     CompetencyUnit:
       type: object
       properties:

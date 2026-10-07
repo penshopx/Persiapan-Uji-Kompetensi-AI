@@ -16,4 +16,11 @@ export interface JobRole {
   standardId: string;
   unitCount: number;
   readiness: string;
+  subClassification: string;
+  reportedStandard: string;
+  reportedStandardStatus: string;
+  pkbRequired: boolean;
+  mvpPhase: string;
+  practiceAvailable: boolean;
+  reviewNotes: string[];
 }

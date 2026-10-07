@@ -25,6 +25,7 @@ Ruang persiapan uji kompetensi konstruksi dengan katalog sumber standar dan lati
 
 - `artifacts/sigap-kompetensi` — Indonesian React frontend.
 - `artifacts/api-server/src/lib/competency-catalog.ts` — catalog metadata.
+- `artifacts/api-server/src/lib/competency-import.json` — normalized uploaded CSV catalog, with archive provenance and review flags; excludes the redundant `_all.csv` copy.
 - `artifacts/api-server/src/lib/competency-sources.json` — source-derived unit excerpts from the two supplied PDF documents.
 - `artifacts/api-server/src/lib/competency-agents.ts` — bounded source retrieval, examiner and evaluator pipeline.
 - `lib/api-spec/openapi.yaml` — API contract; regenerate clients after edits.

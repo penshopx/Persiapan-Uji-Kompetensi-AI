@@ -11,10 +11,12 @@ export interface CompetencyStandard {
   title: string;
   standardType: string;
   code: string;
-  year: number;
+  /** @nullable */
+  year: number | null;
   /** @nullable */
   registrationCode: string | null;
-  sourceUrl: string;
+  /** @nullable */
+  sourceUrl: string | null;
   status: string;
   statusNote: string;
 }
