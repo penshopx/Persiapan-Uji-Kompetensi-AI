@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import { determineReadiness, safetyQuestions } from "../src/lib/ujk-rules";
+
+const complete = { learned: true, lastScore: 100, reviewedEvidenceCount: 1, safetyCritical: false };
+const units = Array.from({ length: 8 }, () => ({ ...complete }));
+assert.equal(determineReadiness(units, true, true, true).status, "siap_diajukan");
+assert.equal(determineReadiness(units, false, true, true).status, "belum_siap", "K3 is not replaceable by AI score");
+assert.equal(determineReadiness([{ ...complete, learned: false }], true, true, true).status, "belum_siap");
+assert.equal(determineReadiness([], true, true, true).status, "belum_siap");
+assert.equal(determineReadiness(units, true, false, true).status, "perlu_perbaikan", "Reference units are not an official scheme");
+assert.equal(determineReadiness(units, true, true, false).status, "perlu_perbaikan", "Self report cannot replace human simulation review");
+assert.equal(determineReadiness([{ ...complete, reviewedEvidenceCount: 0 }], true, true, true).status, "perlu_perbaikan");
+assert.equal(determineReadiness([{ ...complete, lastScore: null }], true, true, true).status, "perlu_perbaikan");
+assert.equal(determineReadiness([{ ...complete, lastScore: 74 }], true, true, true).status, "perlu_perbaikan");
+assert.equal(determineReadiness([{ ...complete, lastScore: 75 }], true, true, true).status, "siap_diajukan");
+assert.equal(determineReadiness([{ ...complete, safetyCritical: true, lastScore: 74 }], true, true, true).status, "belum_siap", "Critical SMKK unit fails closed");
+assert.equal(determineReadiness([{ ...complete, safetyCritical: true, lastScore: null }], true, true, true).status, "belum_siap");
+assert.equal(determineReadiness([{ ...complete, safetyCritical: true, lastScore: 75 }], true, true, true).status, "siap_diajukan");
+assert.equal(safetyQuestions.every((q, index) => q.correct === [1, 0, 2][index]), true);
+assert.equal(safetyQuestions.every((q, index) => q.correct === [1, 0, 0][index]), false, "One safety error must fail the gate");
+assert.ok(determineReadiness(units, true, false, false).blockers.length >= 2);
+console.log("16 UJK readiness and K3 regression assertions passed.");

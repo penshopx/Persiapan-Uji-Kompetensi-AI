@@ -1,6 +1,8 @@
 import { useEffect, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
+import { useAuth, useClerk, useUser } from '@clerk/react';
+import { LogoMark } from '@/components/logo';
 import { useHealthCheck, getHealthCheckQueryKey } from '@workspace/api-client-react';
 import { Disclaimer } from '@/components/bits';
 
@@ -11,10 +13,16 @@ const nav = [
   { href: '/agen', label: 'Agen' },
 ];
 
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 export function Layout({ children }: { children: ReactNode }) {
   const [loc] = useLocation();
+  const { isSignedIn } = useAuth();
+  const { signOut } = useClerk();
+  const { user } = useUser();
+  const items = isSignedIn ? [{ href: '/paspor', label: 'Paspor' }, ...nav] : nav;
   useEffect(() => {
-    const label = nav.find((n) => n.href === loc)?.label ?? 'Halaman tidak ditemukan';
+    const label = [{ href: '/paspor', label: 'Paspor' }, ...nav].find((n) => (n.href === '/' ? loc === '/' : loc.startsWith(n.href)))?.label ?? (loc.startsWith('/ujk/') ? 'Perjalanan UJK' : undefined) ?? 'Halaman tidak ditemukan';
     const descriptions: Record<string, string> = {
       '/': 'Ringkasan cakupan jabatan, unit rujukan, dan progres persiapan uji kompetensi konstruksi.',
       '/katalog': 'Telusuri klasifikasi, jabatan, jenjang, serta dokumen SKKNI dan SKKK untuk latihan kompetensi.',
@@ -33,11 +41,11 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-30 border-b-2 border-primary bg-background/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3">
           <Link href="/" data-testid="link-home" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center bg-primary text-sm font-extrabold text-primary-foreground">SK</span>
+            <LogoMark />
             <span className="text-lg font-extrabold tracking-tight">SIGAP <span className="text-primary">Kompetensi</span></span>
           </Link>
           <nav className="order-3 flex w-full gap-1 overflow-x-auto md:order-none md:w-auto">
-            {nav.map((n) => {
+            {items.map((n) => {
               const active = n.href === '/' ? loc === '/' : loc.startsWith(n.href);
               return (
                 <Link key={n.href} href={n.href} data-testid={`link-nav-${n.label.toLowerCase()}`}
@@ -47,10 +55,20 @@ export function Layout({ children }: { children: ReactNode }) {
               );
             })}
           </nav>
-          <span data-testid="status-service" className="mono flex items-center gap-2 text-xs text-muted-foreground">
-            <span className={`h-2 w-2 rounded-full ${h.isLoading ? 'bg-muted-foreground' : ok ? 'bg-primary' : 'bg-destructive'}`} />
-            {h.isLoading ? 'memeriksa layanan' : ok ? 'layanan aktif' : 'layanan tidak tersedia'}
-          </span>
+          <div className="flex items-center gap-3">
+            {isSignedIn ? (
+              <>
+                <span data-testid="text-user" className="mono hidden max-w-[160px] truncate text-xs text-muted-foreground sm:inline">{user?.primaryEmailAddress?.emailAddress ?? user?.username ?? 'akun'}</span>
+                <button data-testid="button-sign-out" onClick={() => signOut({ redirectUrl: basePath || '/' })} className="border-2 border-primary px-3 py-1.5 text-sm font-bold text-primary">Keluar</button>
+              </>
+            ) : (
+              <>
+                <Link href="/sign-in" data-testid="link-sign-in" className="px-3 py-1.5 text-sm font-bold">Masuk</Link>
+                <Link href="/sign-up" data-testid="link-sign-up" className="bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground">Daftar</Link>
+              </>
+            )}
+            <span data-testid="status-service" title={h.isLoading ? 'memeriksa layanan' : ok ? 'layanan aktif' : 'layanan tidak tersedia'} className={`h-2 w-2 rounded-full ${h.isLoading ? 'bg-muted-foreground' : ok ? 'bg-primary' : 'bg-destructive'}`} />
+          </div>
         </div>
       </header>
       <motion.main key={loc} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}

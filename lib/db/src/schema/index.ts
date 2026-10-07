@@ -17,4 +17,7 @@
 //   export type InsertPost = z.infer<typeof insertPostSchema>;
 //   export type Post = typeof postsTable.$inferSelect;
 
-export {}
+export * from "./ujk-journeys";
+export * from "./ujk-events";
+export * from "./ujk-uploads";
+export * from "./ujk-attempts";

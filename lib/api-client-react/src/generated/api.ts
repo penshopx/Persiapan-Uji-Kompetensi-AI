@@ -25,7 +25,19 @@ import type {
   ErrorResponse,
   HealthStatus,
   PracticeTurnInput,
-  PracticeTurnResponse
+  PracticeTurnResponse,
+  UjkCorrectionInput,
+  UjkEvidenceInput,
+  UjkHistory,
+  UjkJourneyDetail,
+  UjkJourneyInput,
+  UjkJourneySummary,
+  UjkPassport,
+  UjkSafetyInput,
+  UjkSafetyResult,
+  UjkSelfAssessmentInput,
+  UjkUploadInput,
+  UjkUploadResponse
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -374,4 +386,719 @@ export const useCreatePracticeTurn = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getCreatePracticeTurnMutationOptions(options));
     }
+
+export const getGetUjkPassportUrl = () => {
+
+
+
+
+  return `/api/ujk/passport`
+}
+
+export const getUjkPassport = async ( options?: Parameters<typeof customFetch>[1]): Promise<UjkPassport> => {
+
+  return customFetch<UjkPassport>(getGetUjkPassportUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUjkPassportQueryKey = () => {
+    return [
+    `/api/ujk/passport`
+    ] as const;
+    }
+
+
+export const getGetUjkPassportQueryOptions = <TData = Awaited<ReturnType<typeof getUjkPassport>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkPassport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUjkPassportQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUjkPassport>>> = ({ signal }) => getUjkPassport({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUjkPassport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUjkPassportQueryResult = NonNullable<Awaited<ReturnType<typeof getUjkPassport>>>
+export type GetUjkPassportQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetUjkPassport<TData = Awaited<ReturnType<typeof getUjkPassport>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkPassport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUjkPassportQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateUjkJourneyUrl = () => {
+
+
+
+
+  return `/api/ujk/journeys`
+}
+
+export const createUjkJourney = async (ujkJourneyInput: UjkJourneyInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneySummary> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkJourneySummary>(getCreateUjkJourneyUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkJourneyInput)
+  }
+);}
+
+
+
+
+
+export const getCreateUjkJourneyMutationKey = () => ['createUjkJourney'] as const;
+
+export const getCreateUjkJourneyMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkJourney>>, TError,CreateUjkJourneyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUjkJourney>>, TError,CreateUjkJourneyMutationVariables, TContext> => {
+
+const mutationKey = getCreateUjkJourneyMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUjkJourney>>, CreateUjkJourneyMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createUjkJourney(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUjkJourneyMutationResult = NonNullable<Awaited<ReturnType<typeof createUjkJourney>>>
+    export type CreateUjkJourneyMutationBody = BodyType<UjkJourneyInput>
+    export type CreateUjkJourneyMutationError = ErrorType<ErrorResponse>
+    export type CreateUjkJourneyMutationVariables = {data: BodyType<UjkJourneyInput>}
+
+    export const useCreateUjkJourney = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkJourney>>, TError,CreateUjkJourneyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createUjkJourney>>,
+        TError,
+        CreateUjkJourneyMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUjkJourneyMutationOptions(options));
+    }
+
+export const getGetUjkJourneyUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}`
+}
+
+export const getUjkJourney = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneyDetail> => {
+
+  return customFetch<UjkJourneyDetail>(getGetUjkJourneyUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUjkJourneyQueryKey = (id: string,) => {
+    return [
+    `/api/ujk/journeys/${id}`
+    ] as const;
+    }
+
+
+export const getGetUjkJourneyQueryOptions = <TData = Awaited<ReturnType<typeof getUjkJourney>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkJourney>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUjkJourneyQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUjkJourney>>> = ({ signal }) => getUjkJourney(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUjkJourney>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUjkJourneyQueryResult = NonNullable<Awaited<ReturnType<typeof getUjkJourney>>>
+export type GetUjkJourneyQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetUjkJourney<TData = Awaited<ReturnType<typeof getUjkJourney>>, TError = ErrorType<ErrorResponse>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkJourney>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUjkJourneyQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateUjkSelfAssessmentUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/self-assessment`
+}
+
+export const createUjkSelfAssessment = async (id: string,
+    ujkSelfAssessmentInput: UjkSelfAssessmentInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneyDetail> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkJourneyDetail>(getCreateUjkSelfAssessmentUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkSelfAssessmentInput)
+  }
+);}
+
+
+
+
+
+export const getCreateUjkSelfAssessmentMutationKey = () => ['createUjkSelfAssessment'] as const;
+
+export const getCreateUjkSelfAssessmentMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkSelfAssessment>>, TError,CreateUjkSelfAssessmentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUjkSelfAssessment>>, TError,CreateUjkSelfAssessmentMutationVariables, TContext> => {
+
+const mutationKey = getCreateUjkSelfAssessmentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUjkSelfAssessment>>, CreateUjkSelfAssessmentMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  createUjkSelfAssessment(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUjkSelfAssessmentMutationResult = NonNullable<Awaited<ReturnType<typeof createUjkSelfAssessment>>>
+    export type CreateUjkSelfAssessmentMutationBody = BodyType<UjkSelfAssessmentInput>
+    export type CreateUjkSelfAssessmentMutationError = ErrorType<ErrorResponse>
+    export type CreateUjkSelfAssessmentMutationVariables = {id: string;data: BodyType<UjkSelfAssessmentInput>}
+
+    export const useCreateUjkSelfAssessment = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkSelfAssessment>>, TError,CreateUjkSelfAssessmentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createUjkSelfAssessment>>,
+        TError,
+        CreateUjkSelfAssessmentMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUjkSelfAssessmentMutationOptions(options));
+    }
+
+export const getCreateUjkSafetyAttemptUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/safety`
+}
+
+export const createUjkSafetyAttempt = async (id: string,
+    ujkSafetyInput: UjkSafetyInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkSafetyResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkSafetyResult>(getCreateUjkSafetyAttemptUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkSafetyInput)
+  }
+);}
+
+
+
+
+
+export const getCreateUjkSafetyAttemptMutationKey = () => ['createUjkSafetyAttempt'] as const;
+
+export const getCreateUjkSafetyAttemptMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkSafetyAttempt>>, TError,CreateUjkSafetyAttemptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUjkSafetyAttempt>>, TError,CreateUjkSafetyAttemptMutationVariables, TContext> => {
+
+const mutationKey = getCreateUjkSafetyAttemptMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUjkSafetyAttempt>>, CreateUjkSafetyAttemptMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  createUjkSafetyAttempt(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUjkSafetyAttemptMutationResult = NonNullable<Awaited<ReturnType<typeof createUjkSafetyAttempt>>>
+    export type CreateUjkSafetyAttemptMutationBody = BodyType<UjkSafetyInput>
+    export type CreateUjkSafetyAttemptMutationError = ErrorType<ErrorResponse>
+    export type CreateUjkSafetyAttemptMutationVariables = {id: string;data: BodyType<UjkSafetyInput>}
+
+    export const useCreateUjkSafetyAttempt = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkSafetyAttempt>>, TError,CreateUjkSafetyAttemptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createUjkSafetyAttempt>>,
+        TError,
+        CreateUjkSafetyAttemptMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUjkSafetyAttemptMutationOptions(options));
+    }
+
+export const getRequestUjkEvidenceUploadUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/uploads`
+}
+
+export const requestUjkEvidenceUpload = async (id: string,
+    ujkUploadInput: UjkUploadInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkUploadResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkUploadResponse>(getRequestUjkEvidenceUploadUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkUploadInput)
+  }
+);}
+
+
+
+
+
+export const getRequestUjkEvidenceUploadMutationKey = () => ['requestUjkEvidenceUpload'] as const;
+
+export const getRequestUjkEvidenceUploadMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestUjkEvidenceUpload>>, TError,RequestUjkEvidenceUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestUjkEvidenceUpload>>, TError,RequestUjkEvidenceUploadMutationVariables, TContext> => {
+
+const mutationKey = getRequestUjkEvidenceUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestUjkEvidenceUpload>>, RequestUjkEvidenceUploadMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  requestUjkEvidenceUpload(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestUjkEvidenceUploadMutationResult = NonNullable<Awaited<ReturnType<typeof requestUjkEvidenceUpload>>>
+    export type RequestUjkEvidenceUploadMutationBody = BodyType<UjkUploadInput>
+    export type RequestUjkEvidenceUploadMutationError = ErrorType<ErrorResponse>
+    export type RequestUjkEvidenceUploadMutationVariables = {id: string;data: BodyType<UjkUploadInput>}
+
+    export const useRequestUjkEvidenceUpload = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestUjkEvidenceUpload>>, TError,RequestUjkEvidenceUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof requestUjkEvidenceUpload>>,
+        TError,
+        RequestUjkEvidenceUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRequestUjkEvidenceUploadMutationOptions(options));
+    }
+
+export const getCreateUjkEvidenceUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/evidence`
+}
+
+export const createUjkEvidence = async (id: string,
+    ujkEvidenceInput: UjkEvidenceInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneyDetail> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkJourneyDetail>(getCreateUjkEvidenceUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkEvidenceInput)
+  }
+);}
+
+
+
+
+
+export const getCreateUjkEvidenceMutationKey = () => ['createUjkEvidence'] as const;
+
+export const getCreateUjkEvidenceMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkEvidence>>, TError,CreateUjkEvidenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUjkEvidence>>, TError,CreateUjkEvidenceMutationVariables, TContext> => {
+
+const mutationKey = getCreateUjkEvidenceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUjkEvidence>>, CreateUjkEvidenceMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  createUjkEvidence(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUjkEvidenceMutationResult = NonNullable<Awaited<ReturnType<typeof createUjkEvidence>>>
+    export type CreateUjkEvidenceMutationBody = BodyType<UjkEvidenceInput>
+    export type CreateUjkEvidenceMutationError = ErrorType<ErrorResponse>
+    export type CreateUjkEvidenceMutationVariables = {id: string;data: BodyType<UjkEvidenceInput>}
+
+    export const useCreateUjkEvidence = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkEvidence>>, TError,CreateUjkEvidenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createUjkEvidence>>,
+        TError,
+        CreateUjkEvidenceMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUjkEvidenceMutationOptions(options));
+    }
+
+export const getCreateUjkCorrectionUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/notes`
+}
+
+export const createUjkCorrection = async (id: string,
+    ujkCorrectionInput: UjkCorrectionInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneyDetail> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkJourneyDetail>(getCreateUjkCorrectionUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkCorrectionInput)
+  }
+);}
+
+
+
+
+
+export const getCreateUjkCorrectionMutationKey = () => ['createUjkCorrection'] as const;
+
+export const getCreateUjkCorrectionMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkCorrection>>, TError,CreateUjkCorrectionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUjkCorrection>>, TError,CreateUjkCorrectionMutationVariables, TContext> => {
+
+const mutationKey = getCreateUjkCorrectionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUjkCorrection>>, CreateUjkCorrectionMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  createUjkCorrection(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUjkCorrectionMutationResult = NonNullable<Awaited<ReturnType<typeof createUjkCorrection>>>
+    export type CreateUjkCorrectionMutationBody = BodyType<UjkCorrectionInput>
+    export type CreateUjkCorrectionMutationError = ErrorType<ErrorResponse>
+    export type CreateUjkCorrectionMutationVariables = {id: string;data: BodyType<UjkCorrectionInput>}
+
+    export const useCreateUjkCorrection = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkCorrection>>, TError,CreateUjkCorrectionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createUjkCorrection>>,
+        TError,
+        CreateUjkCorrectionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUjkCorrectionMutationOptions(options));
+    }
+
+export const getGetUjkHistoryUrl = (id: string,
+    before: number,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/history/${before}`
+}
+
+export const getUjkHistory = async (id: string,
+    before: number, options?: Parameters<typeof customFetch>[1]): Promise<UjkHistory> => {
+
+  return customFetch<UjkHistory>(getGetUjkHistoryUrl(id,before),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUjkHistoryQueryKey = (id: string,
+    before: number,) => {
+    return [
+    `/api/ujk/journeys/${id}/history/${before}`
+    ] as const;
+    }
+
+
+export const getGetUjkHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getUjkHistory>>, TError = ErrorType<ErrorResponse>>(id: string,
+    before: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUjkHistoryQueryKey(id,before);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUjkHistory>>> = ({ signal }) => getUjkHistory(id,before, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined && before !== null && before !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUjkHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUjkHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getUjkHistory>>>
+export type GetUjkHistoryQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetUjkHistory<TData = Awaited<ReturnType<typeof getUjkHistory>>, TError = ErrorType<ErrorResponse>>(
+ id: string,
+    before: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUjkHistoryQueryOptions(id,before,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 

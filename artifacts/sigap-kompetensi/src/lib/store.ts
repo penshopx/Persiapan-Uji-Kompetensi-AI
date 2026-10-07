@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { PracticeTurnResponse } from '@workspace/api-client-react';
+import { useAuth } from '@clerk/react';
 import { toast } from '@/hooks/use-toast';
 
 export type Msg = { role: 'user' | 'assistant'; content: string };
@@ -26,6 +27,7 @@ export function usePersisted<T>(key: string, init: T): [T, (v: T | ((p: T) => T)
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
+  useEffect(() => { setVal(read()); }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const set = useCallback((v: T | ((p: T) => T)) => {
     let cur: T; try { const r = localStorage.getItem(key); cur = r ? JSON.parse(r) : init; } catch { cur = init; }
     const next = typeof v === 'function' ? (v as (p: T) => T)(cur) : v;
@@ -41,10 +43,16 @@ export function usePersisted<T>(key: string, init: T): [T, (v: T | ((p: T) => T)
   return [val, set];
 }
 
-export const useSelection = () => usePersisted<Selection | null>('sigap.selection', null);
-export const useStudyHistory = () => usePersisted<StudyEntry[]>('sigap.history', []);
-export type Session = { roleId: string; unitCode: string; mode: 'practice' | 'assessment'; messages: Msg[]; pendingQuestion: string | null; result?: PracticeTurnResponse } | null;
-export const useSession = () => usePersisted<Session>('sigap.session', null);
+/** Anonymous keeps legacy keys untouched; signed-in users get their own namespace. */
+export function useScopedKey(base: string) {
+  const { userId } = useAuth();
+  return userId ? `${base}.u.${userId}` : base;
+}
+
+export const useSelection = () => usePersisted<Selection | null>(useScopedKey('sigap.selection'), null);
+export const useStudyHistory = () => usePersisted<StudyEntry[]>(useScopedKey('sigap.history'), []);
+export type Session = { journeyId?: string | null; roleId: string; unitCode: string; mode: 'practice' | 'assessment'; messages: Msg[]; pendingQuestion: string | null; result?: PracticeTurnResponse } | null;
+export const useSession = () => usePersisted<Session>(useScopedKey('sigap.session'), null);
 
 export const statusLabel: Record<string, string> = {
   needs_practice: 'Perlu latihan', developing: 'Berkembang', ready_for_practice: 'Siap berlatih lanjut',

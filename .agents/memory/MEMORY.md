@@ -1,1 +1,2 @@
 - [Cakupan dan rujukan kompetensi](competency-scope.md) — kerangka lintas klasifikasi lebih dahulu; unit dokumen bukan paket skema per jenjang.
+- [Kesiapan dan riwayat](readiness-decisions.md) — hasil terbaru menentukan kondisi persiapan; kegagalan K3 baru tidak ditutupi nilai tinggi sebelumnya.

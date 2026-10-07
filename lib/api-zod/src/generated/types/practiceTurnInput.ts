@@ -10,6 +10,8 @@ import type { PracticeTurnInputAction } from './practiceTurnInputAction';
 import type { PracticeTurnInputMode } from './practiceTurnInputMode';
 
 export interface PracticeTurnInput {
+  journeyId?: string;
+  attemptId?: string;
   action: PracticeTurnInputAction;
   mode: PracticeTurnInputMode;
   roleId: string;

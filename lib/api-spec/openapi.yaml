@@ -88,8 +88,334 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /ujk/passport:
+    get:
+      operationId: getUjkPassport
+      responses:
+        "200":
+          description: Paspor milik peserta yang masuk
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkPassport" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys:
+    post:
+      operationId: createUjkJourney
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkJourneyInput" }
+      responses:
+        "200":
+          description: Jalur persiapan dibuat atau sudah ada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneySummary" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys/{id}:
+    parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+    get:
+      operationId: getUjkJourney
+      responses:
+        "200":
+          description: Unit, bukti, dan gerbang kesiapan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys/{id}/self-assessment:
+    parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+    post:
+      operationId: createUjkSelfAssessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkSelfAssessmentInput" }
+      responses:
+        "200":
+          description: Catatan asesmen mandiri ditambahkan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys/{id}/safety:
+    parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+    post:
+      operationId: createUjkSafetyAttempt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkSafetyInput" }
+      responses:
+        "200":
+          description: Hasil gerbang K3 internal dan kesiapan terbaru
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkSafetyResult" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys/{id}/uploads:
+    parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+    post:
+      operationId: requestUjkEvidenceUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkUploadInput" }
+      responses:
+        "200":
+          description: Unggah langsung ke penyimpanan privat
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkUploadResponse" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys/{id}/evidence:
+    parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+    post:
+      operationId: createUjkEvidence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkEvidenceInput" }
+      responses:
+        "200":
+          description: Bukti dicatat, belum diverifikasi asesor
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys/{id}/notes:
+    parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+    post:
+      operationId: createUjkCorrection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkCorrectionInput" }
+      responses:
+        "200":
+          description: Koreksi ditambahkan tanpa menimpa riwayat
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys/{id}/history/{before}:
+    parameters:
+      - { $ref: "#/components/parameters/UjkJourneyId" }
+      - name: before
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1 }
+    get:
+      operationId: getUjkHistory
+      responses:
+        "200":
+          description: Riwayat append-only, halaman 50 catatan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkHistory" }
+        default:
+          description: Permintaan ditolak
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
 components:
+  parameters:
+    UjkJourneyId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   schemas:
+    UjkJourneyInput:
+      type: object
+      properties:
+        roleId: { type: string, minLength: 1 }
+        consent: { type: boolean }
+      required: [roleId, consent]
+    UjkJourneySummary:
+      type: object
+      properties:
+        id: { type: string }
+        roleId: { type: string }
+        title: { type: string }
+        createdAt: { type: string }
+        status: { type: string, enum: [belum_siap, perlu_perbaikan, siap_diajukan] }
+        learnedCount: { type: integer }
+        unitCount: { type: integer }
+        schemeVerified: { type: boolean }
+        safetyPassed: { type: boolean }
+      required: [id, roleId, title, createdAt, status, learnedCount, unitCount, schemeVerified, safetyPassed]
+    UjkPassport:
+      type: object
+      properties:
+        journeys:
+          type: array
+          items: { $ref: "#/components/schemas/UjkJourneySummary" }
+      required: [journeys]
+    UjkUnitState:
+      type: object
+      properties:
+        code: { type: string }
+        title: { type: string }
+        learned: { type: boolean }
+        confidence: { type: string, enum: [none, learning, practiced, confident] }
+        lastScore: { type: ["integer", "null"] }
+        plan: { type: string }
+        safetyCritical: { type: boolean }
+        evidenceCount: { type: integer }
+        reviewedEvidenceCount: { type: integer }
+        gaps: { type: array, items: { type: string } }
+      required: [code, title, learned, confidence, lastScore, plan, safetyCritical, evidenceCount, reviewedEvidenceCount, gaps]
+    UjkEvidence:
+      type: object
+      properties:
+        id: { type: string }
+        unitCode: { type: string }
+        title: { type: string }
+        description: { type: string }
+        fileName: { type: string }
+        size: { type: integer }
+        contentType: { type: string }
+        createdAt: { type: string }
+        downloadUrl: { type: string }
+        valid: { type: boolean }
+        authentic: { type: boolean }
+        current: { type: boolean }
+        sufficient: { type: boolean }
+        reviewStatus: { type: string, enum: [pending, accepted, rejected] }
+      required: [id, unitCode, title, description, fileName, size, contentType, createdAt, downloadUrl, valid, authentic, current, sufficient, reviewStatus]
+    UjkSafetyQuestion:
+      type: object
+      properties:
+        id: { type: string }
+        question: { type: string }
+        choices: { type: array, items: { type: string } }
+        sourceNote: { type: string }
+      required: [id, question, choices, sourceNote]
+    UjkJourneyDetail:
+      type: object
+      properties:
+        journey: { $ref: "#/components/schemas/UjkJourneySummary" }
+        units: { type: array, items: { $ref: "#/components/schemas/UjkUnitState" } }
+        evidence: { type: array, items: { $ref: "#/components/schemas/UjkEvidence" } }
+        safetyQuestions: { type: array, items: { $ref: "#/components/schemas/UjkSafetyQuestion" } }
+        blockers: { type: array, items: { type: string } }
+        threshold: { type: integer }
+        simulationPassed: { type: boolean }
+        ruleNote: { type: string }
+        schemeNote: { type: string }
+      required: [journey, units, evidence, safetyQuestions, blockers, threshold, simulationPassed, ruleNote, schemeNote]
+    UjkSelfAssessmentInput:
+      type: object
+      properties:
+        unitCode: { type: string, minLength: 1 }
+        confidence: { type: string, enum: [none, learning, practiced, confident] }
+        learned: { type: boolean }
+        plan: { type: string, maxLength: 3000 }
+        reason: { type: string, minLength: 3, maxLength: 2000 }
+      required: [unitCode, confidence, learned, plan, reason]
+    UjkSafetyInput:
+      type: object
+      properties:
+        answers:
+          type: array
+          minItems: 3
+          maxItems: 3
+          items: { type: integer, minimum: 0, maximum: 2 }
+      required: [answers]
+    UjkSafetyResult:
+      type: object
+      properties:
+        passed: { type: boolean }
+        feedback: { type: array, items: { type: string } }
+        detail: { $ref: "#/components/schemas/UjkJourneyDetail" }
+      required: [passed, feedback, detail]
+    UjkUploadInput:
+      type: object
+      properties:
+        unitCode: { type: string, minLength: 1 }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        size: { type: integer, minimum: 1, maximum: 10485760 }
+        contentType: { type: string, enum: [application/pdf, image/png, image/jpeg] }
+      required: [unitCode, name, size, contentType]
+    UjkUploadResponse:
+      type: object
+      properties:
+        uploadId: { type: string }
+        uploadURL: { type: string }
+      required: [uploadId, uploadURL]
+    UjkEvidenceInput:
+      type: object
+      properties:
+        uploadId: { type: string, format: uuid }
+        title: { type: string, minLength: 3, maxLength: 200 }
+        description: { type: string, minLength: 3, maxLength: 3000 }
+        valid: { type: boolean }
+        authentic: { type: boolean }
+        current: { type: boolean }
+        sufficient: { type: boolean }
+      required: [uploadId, title, description, valid, authentic, current, sufficient]
+    UjkCorrectionInput:
+      type: object
+      properties:
+        note: { type: string, minLength: 3, maxLength: 3000 }
+      required: [note]
+    UjkHistoryEvent:
+      type: object
+      properties:
+        id: { type: integer }
+        kind: { type: string }
+        unitCode: { type: ["string", "null"] }
+        summary: { type: string }
+        createdAt: { type: string }
+        question: { type: ["string", "null"] }
+        answer: { type: ["string", "null"] }
+        score: { type: ["integer", "null"] }
+      required: [id, kind, unitCode, summary, createdAt, question, answer, score]
+    UjkHistory:
+      type: object
+      properties:
+        events: { type: array, items: { $ref: "#/components/schemas/UjkHistoryEvent" } }
+        nextCursor: { type: ["integer", "null"] }
+      required: [events, nextCursor]
     HealthStatus:
       type: object
       properties:
@@ -249,6 +575,12 @@ components:
     PracticeTurnInput:
       type: object
       properties:
+        journeyId:
+          type: string
+          format: uuid
+        attemptId:
+          type: string
+          format: uuid
         action:
           type: string
           enum: [start, answer]

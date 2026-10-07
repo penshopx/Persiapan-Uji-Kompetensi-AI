@@ -5,6 +5,223 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface UjkJourneyInput {
+  /** @minLength 1 */
+  roleId: string;
+  consent: boolean;
+}
+
+export type UjkJourneySummaryStatus = typeof UjkJourneySummaryStatus[keyof typeof UjkJourneySummaryStatus];
+
+
+export const UjkJourneySummaryStatus = {
+  belum_siap: 'belum_siap',
+  perlu_perbaikan: 'perlu_perbaikan',
+  siap_diajukan: 'siap_diajukan',
+} as const;
+
+export interface UjkJourneySummary {
+  id: string;
+  roleId: string;
+  title: string;
+  createdAt: string;
+  status: UjkJourneySummaryStatus;
+  learnedCount: number;
+  unitCount: number;
+  schemeVerified: boolean;
+  safetyPassed: boolean;
+}
+
+export interface UjkPassport {
+  journeys: UjkJourneySummary[];
+}
+
+export type UjkUnitStateConfidence = typeof UjkUnitStateConfidence[keyof typeof UjkUnitStateConfidence];
+
+
+export const UjkUnitStateConfidence = {
+  none: 'none',
+  learning: 'learning',
+  practiced: 'practiced',
+  confident: 'confident',
+} as const;
+
+export interface UjkUnitState {
+  code: string;
+  title: string;
+  learned: boolean;
+  confidence: UjkUnitStateConfidence;
+  /** @nullable */
+  lastScore: number | null;
+  plan: string;
+  safetyCritical: boolean;
+  evidenceCount: number;
+  reviewedEvidenceCount: number;
+  gaps: string[];
+}
+
+export type UjkEvidenceReviewStatus = typeof UjkEvidenceReviewStatus[keyof typeof UjkEvidenceReviewStatus];
+
+
+export const UjkEvidenceReviewStatus = {
+  pending: 'pending',
+  accepted: 'accepted',
+  rejected: 'rejected',
+} as const;
+
+export interface UjkEvidence {
+  id: string;
+  unitCode: string;
+  title: string;
+  description: string;
+  fileName: string;
+  size: number;
+  contentType: string;
+  createdAt: string;
+  downloadUrl: string;
+  valid: boolean;
+  authentic: boolean;
+  current: boolean;
+  sufficient: boolean;
+  reviewStatus: UjkEvidenceReviewStatus;
+}
+
+export interface UjkSafetyQuestion {
+  id: string;
+  question: string;
+  choices: string[];
+  sourceNote: string;
+}
+
+export interface UjkJourneyDetail {
+  journey: UjkJourneySummary;
+  units: UjkUnitState[];
+  evidence: UjkEvidence[];
+  safetyQuestions: UjkSafetyQuestion[];
+  blockers: string[];
+  threshold: number;
+  simulationPassed: boolean;
+  ruleNote: string;
+  schemeNote: string;
+}
+
+export type UjkSelfAssessmentInputConfidence = typeof UjkSelfAssessmentInputConfidence[keyof typeof UjkSelfAssessmentInputConfidence];
+
+
+export const UjkSelfAssessmentInputConfidence = {
+  none: 'none',
+  learning: 'learning',
+  practiced: 'practiced',
+  confident: 'confident',
+} as const;
+
+export interface UjkSelfAssessmentInput {
+  /** @minLength 1 */
+  unitCode: string;
+  confidence: UjkSelfAssessmentInputConfidence;
+  learned: boolean;
+  /** @maxLength 3000 */
+  plan: string;
+  /**
+     * @minLength 3
+     * @maxLength 2000
+     */
+  reason: string;
+}
+
+export interface UjkSafetyInput {
+  /**
+     * @minItems 3
+     * @maxItems 3
+     * @items.minimum 0
+     * @items.maximum 2
+     */
+  answers: number[];
+}
+
+export interface UjkSafetyResult {
+  passed: boolean;
+  feedback: string[];
+  detail: UjkJourneyDetail;
+}
+
+export type UjkUploadInputContentType = typeof UjkUploadInputContentType[keyof typeof UjkUploadInputContentType];
+
+
+export const UjkUploadInputContentType = {
+  'application/pdf': 'application/pdf',
+  'image/png': 'image/png',
+  'image/jpeg': 'image/jpeg',
+} as const;
+
+export interface UjkUploadInput {
+  /** @minLength 1 */
+  unitCode: string;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 10485760
+     */
+  size: number;
+  contentType: UjkUploadInputContentType;
+}
+
+export interface UjkUploadResponse {
+  uploadId: string;
+  uploadURL: string;
+}
+
+export interface UjkEvidenceInput {
+  uploadId: string;
+  /**
+     * @minLength 3
+     * @maxLength 200
+     */
+  title: string;
+  /**
+     * @minLength 3
+     * @maxLength 3000
+     */
+  description: string;
+  valid: boolean;
+  authentic: boolean;
+  current: boolean;
+  sufficient: boolean;
+}
+
+export interface UjkCorrectionInput {
+  /**
+     * @minLength 3
+     * @maxLength 3000
+     */
+  note: string;
+}
+
+export interface UjkHistoryEvent {
+  id: number;
+  kind: string;
+  /** @nullable */
+  unitCode: string | null;
+  summary: string;
+  createdAt: string;
+  /** @nullable */
+  question: string | null;
+  /** @nullable */
+  answer: string | null;
+  /** @nullable */
+  score: number | null;
+}
+
+export interface UjkHistory {
+  events: UjkHistoryEvent[];
+  /** @nullable */
+  nextCursor: number | null;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -115,6 +332,8 @@ export const PracticeTurnInputMode = {
 } as const;
 
 export interface PracticeTurnInput {
+  journeyId?: string;
+  attemptId?: string;
   action: PracticeTurnInputAction;
   mode: PracticeTurnInputMode;
   roleId: string;
