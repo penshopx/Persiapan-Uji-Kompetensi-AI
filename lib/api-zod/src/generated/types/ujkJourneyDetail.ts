@@ -7,7 +7,9 @@
  */
 import type { UjkEvidence } from './ujkEvidence';
 import type { UjkJourneySummary } from './ujkJourneySummary';
+import type { UjkReviewContext } from './ujkReviewContext';
 import type { UjkSafetyQuestion } from './ujkSafetyQuestion';
+import type { UjkScheme } from './ujkScheme';
 import type { UjkUnitState } from './ujkUnitState';
 
 export interface UjkJourneyDetail {
@@ -20,4 +22,7 @@ export interface UjkJourneyDetail {
   simulationPassed: boolean;
   ruleNote: string;
   schemeNote: string;
+  scheme: UjkScheme | null;
+  requiredUnitCodes: string[];
+  review: UjkReviewContext;
 }

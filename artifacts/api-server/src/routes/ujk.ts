@@ -12,7 +12,7 @@ import { randomUUID } from "node:crypto";
 
 const router = Router();
 export const ujkStorage = new ObjectStorageService();
-const guarded = (fn: (req: Request, res: Response, owner: string) => Promise<void>) => async (req: Request, res: Response) => {
+export const guarded = (fn: (req: Request, res: Response, owner: string) => Promise<void>) => async (req: Request, res: Response) => {
   try {
     const owner = getAuth(req).userId;
     if (!owner) { res.status(401).json({ error: "Masuk untuk mengakses paspor dan bukti pribadi." }); return; }

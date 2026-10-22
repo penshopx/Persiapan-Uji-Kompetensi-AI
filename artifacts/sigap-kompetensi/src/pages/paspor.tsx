@@ -72,7 +72,7 @@ export default function Paspor() {
           )}
           <p className="text-xs text-muted-foreground">Hanya jabatan dengan unit sumber yang telah diproses yang dapat dimulai. Entri katalog lain tidak dibuatkan unit rekaan.</p>
           <div className="space-y-2 border-l-2 border-primary bg-primary/10 p-3 text-sm">
-            <p className="flex gap-2"><Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> Berkas bukti disimpan privat di penyimpanan terproteksi; hanya Anda yang mendapat tautan unduhnya. Isi berkas tidak masuk basis data.</p>
+            <p className="flex gap-2"><Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> Berkas bukti disimpan privat di penyimpanan terproteksi. Peninjau yang ditugaskan hanya mendapat akses dengan persetujuan Anda, yang dapat dicabut. Isi berkas tidak masuk basis data.</p>
             <p className="flex gap-2"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> Riwayat bersifat tambah-saja: catatan lama tidak diubah atau dihapus, koreksi ditulis sebagai catatan baru beralasan. Kami tidak meminta NIK.</p>
           </div>
           <label className="flex items-start gap-3 text-sm"><input data-testid="check-consent" type="checkbox" className="mt-1 h-5 w-5 accent-[hsl(212_100%_62%)]" checked={consent} onChange={(e) => setConsent(e.target.checked)} />

@@ -5,6 +5,193 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type UjkSchemeInputStatus = typeof UjkSchemeInputStatus[keyof typeof UjkSchemeInputStatus];
+
+
+export const UjkSchemeInputStatus = {
+  unverified: 'unverified',
+  verified: 'verified',
+  withdrawn: 'withdrawn',
+} as const;
+
+export interface UjkSchemeInput {
+  /** @minLength 1 */
+  roleId: string;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  version: string;
+  /**
+     * @minLength 3
+     * @maxLength 200
+     */
+  authority: string;
+  /** @maxLength 2000 */
+  sourceUrl: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  sourceHash: string;
+  /**
+     * @minLength 3
+     * @maxLength 2000
+     */
+  sourceLocator: string;
+  status: UjkSchemeInputStatus;
+  /** @nullable */
+  validFrom: string | null;
+  /** @nullable */
+  validUntil: string | null;
+  /**
+     * @maxItems 200
+     * @items.minLength 1
+     */
+  unitCodes: string[];
+  /**
+     * @minLength 10
+     * @maxLength 3000
+     */
+  reason: string;
+}
+
+export type UjkSchemeStatus = typeof UjkSchemeStatus[keyof typeof UjkSchemeStatus];
+
+
+export const UjkSchemeStatus = {
+  unverified: 'unverified',
+  verified: 'verified',
+  withdrawn: 'withdrawn',
+  expired: 'expired',
+} as const;
+
+export interface UjkScheme {
+  id: string;
+  roleId: string;
+  /** @nullable */
+  level: number | null;
+  version: string;
+  authority: string;
+  sourceUrl: string;
+  sourceHash: string;
+  sourceLocator: string;
+  status: UjkSchemeStatus;
+  /** @nullable */
+  validFrom: string | null;
+  /** @nullable */
+  validUntil: string | null;
+  unitCodes: string[];
+  reason: string;
+  checkedAt: string;
+  checkedBy: string;
+}
+
+export interface UjkAssignmentInput {
+  /** @maxLength 200 */
+  reviewerId: string;
+  /**
+     * @minLength 3
+     * @maxLength 2000
+     */
+  reason: string;
+}
+
+export interface UjkReviewConsentInput {
+  /** @minimum 1 */
+  assignmentId: number;
+  consent: boolean;
+}
+
+export interface UjkSimulationInput {
+  /**
+     * @minLength 30
+     * @maxLength 10000
+     */
+  report: string;
+}
+
+export type UjkReviewInputKind = typeof UjkReviewInputKind[keyof typeof UjkReviewInputKind];
+
+
+export const UjkReviewInputKind = {
+  evidence_review: 'evidence_review',
+  simulation_review: 'simulation_review',
+} as const;
+
+export interface UjkReviewInput {
+  kind: UjkReviewInputKind;
+  evidenceId?: string;
+  /** @minimum 1 */
+  simulationId?: number;
+  /** @minimum 1 */
+  expectedEventId: number;
+  accepted: boolean;
+  valid: boolean;
+  authentic: boolean;
+  current: boolean;
+  sufficient: boolean;
+  validUntil: string;
+  /**
+     * @minLength 10
+     * @maxLength 3000
+     */
+  reason: string;
+}
+
+export interface UjkHistoryEvent {
+  id: number;
+  kind: string;
+  /** @nullable */
+  unitCode: string | null;
+  summary: string;
+  createdAt: string;
+  /** @nullable */
+  question: string | null;
+  /** @nullable */
+  answer: string | null;
+  /** @nullable */
+  score: number | null;
+}
+
+export interface UjkReviewDecision {
+  id: number;
+  kind: string;
+  actorId: string;
+  reason: string;
+  createdAt: string;
+}
+
+export interface UjkReviewContext {
+  /** @nullable */
+  assignmentId: number | null;
+  /** @nullable */
+  reviewerId: string | null;
+  consent: boolean;
+  lastEventId: number;
+  /** @nullable */
+  simulationId: number | null;
+  /** @nullable */
+  simulationReport: string | null;
+  /** @nullable */
+  simulationReason: string | null;
+  simulationAttempts: UjkHistoryEvent[];
+  decisions: UjkReviewDecision[];
+}
+
+export interface UjkReviewCase {
+  id: string;
+  roleId: string;
+  title: string;
+  /** @nullable */
+  reviewerId: string | null;
+  consent: boolean;
+  canReview: boolean;
+}
+
+export interface UjkReviewWorkspace {
+  manager: boolean;
+  cases: UjkReviewCase[];
+  schemes: UjkScheme[];
+}
+
 export interface UjkJourneyInput {
   /** @minLength 1 */
   roleId: string;
@@ -84,6 +271,10 @@ export interface UjkEvidence {
   current: boolean;
   sufficient: boolean;
   reviewStatus: UjkEvidenceReviewStatus;
+  /** @nullable */
+  reviewReason: string | null;
+  /** @nullable */
+  reviewValidUntil: string | null;
 }
 
 export interface UjkSafetyQuestion {
@@ -103,6 +294,9 @@ export interface UjkJourneyDetail {
   simulationPassed: boolean;
   ruleNote: string;
   schemeNote: string;
+  scheme: UjkScheme | null;
+  requiredUnitCodes: string[];
+  review: UjkReviewContext;
 }
 
 export type UjkSelfAssessmentInputConfidence = typeof UjkSelfAssessmentInputConfidence[keyof typeof UjkSelfAssessmentInputConfidence];
@@ -199,21 +393,6 @@ export interface UjkCorrectionInput {
      * @maxLength 3000
      */
   note: string;
-}
-
-export interface UjkHistoryEvent {
-  id: number;
-  kind: string;
-  /** @nullable */
-  unitCode: string | null;
-  summary: string;
-  createdAt: string;
-  /** @nullable */
-  question: string | null;
-  /** @nullable */
-  answer: string | null;
-  /** @nullable */
-  score: number | null;
 }
 
 export interface UjkHistory {

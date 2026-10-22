@@ -6,6 +6,7 @@ import { db, ujkUploads } from "@workspace/db";
 import { ObjectStorageService, ObjectNotFoundError } from "../lib/objectStorage";
 import { ObjectPermission } from "../lib/objectAcl";
 import { getClerkProxyHost } from "../middlewares/clerkProxyMiddleware";
+import { assignedJourney } from "../lib/ujk-review-access";
 
 const router = Router();
 const storage = new ObjectStorageService();
@@ -34,10 +35,15 @@ router.get("/storage/objects/*path", async (req, res) => {
     }
     const raw = req.params.path;
     const objectPath = `/objects/${Array.isArray(raw) ? raw.join("/") : raw}`;
-    const [evidence] = await db.select().from(ujkUploads).where(and(eq(ujkUploads.objectPath, objectPath), eq(ujkUploads.ownerId, owner), eq(ujkUploads.finalized, true)));
+    const [evidence] = await db.select().from(ujkUploads).where(and(eq(ujkUploads.objectPath, objectPath), eq(ujkUploads.finalized, true)));
     if (!evidence) { res.status(404).json({ error: "Bukti tidak ditemukan." }); return; }
+    if (evidence.ownerId !== owner) {
+      try { await assignedJourney(evidence.journeyId, owner); }
+      catch { res.status(404).json({ error: "Bukti tidak ditemukan." }); return; }
+    }
     const file = await storage.getObjectEntityFile(objectPath);
-    if (!await storage.canAccessObjectEntity({ userId: owner, objectFile: file, requestedPermission: ObjectPermission.READ })) {
+    // Reviewer grant is checked live above, never written into an enduring object ACL.
+    if (!await storage.canAccessObjectEntity({ userId: evidence.ownerId, objectFile: file, requestedPermission: ObjectPermission.READ })) {
       res.status(404).json({ error: "Bukti tidak ditemukan." }); return;
     }
     const response = await storage.downloadObject(file);

@@ -15,6 +15,7 @@ import Practice from '@/pages/practice';
 import Agents from '@/pages/agents';
 import Paspor from '@/pages/paspor';
 import Ujk from '@/pages/ujk';
+import Review from '@/pages/review';
 import { SignInPage, SignUpPage } from '@/pages/auth';
 import NotFound from '@/pages/not-found';
 import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
@@ -121,6 +122,8 @@ function AppShell() {
           <Route path="/" component={HomeRedirect} />
           <Route path="/paspor">{() => <Private>{() => <Paspor />}</Private>}</Route>
           <Route path="/ujk/:id">{(params) => <Private>{() => <Ujk key={params.id} />}</Private>}</Route>
+          <Route path="/review/:id">{() => <Private>{() => <Review />}</Private>}</Route>
+          <Route path="/review">{() => <Private>{() => <Review />}</Private>}</Route>
           <Route path="/katalog" component={Catalog} />
           <Route path="/latihan" component={KeyedPractice} />
           <Route path="/agen" component={Agents} />

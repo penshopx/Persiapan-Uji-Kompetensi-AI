@@ -41,7 +41,9 @@ Ruang persiapan uji kompetensi konstruksi dengan katalog sumber standar dan lati
 - Generic practice retains browser-local history, separated by account namespace without silently migrating anonymous records. Practice launched from a UJK journey is also persisted server-side in the participant's passport.
 - Passport history is append-only in application flows: corrections add events, and participants cannot overwrite/delete prior entries.
 - Evidence is uploaded directly to a short-lived signed PUT URL, then finalized into a separate private object that has never had a participant-facing write URL. Downloads require both database ownership and private object ACL authorization.
-- Reference unit lists are not verified certification scheme packages. Scheme approval, evidence review and simulation approval are server-owned gates; learner declarations and AI scores cannot satisfy them. Reviewer approval interfaces and verified official scheme mappings are not implemented yet.
+- Reference unit lists are not verified certification scheme packages. The `/review` workspace records immutable scheme revisions and human decisions; learner declarations and AI scores cannot satisfy those gates. Research candidates are unverified until the managing institution confirms the official package, codes, revision and validity dates.
+- Bootstrap managers via the trusted Clerk server/admin interface: set private metadata `ujkRole` to `manager` for the institution-approved account. Never use unsafe/public metadata or participant self-assignment. A manager appoints another existing Clerk account per case; the participant consents to that exact assignment before private case access. Blank reviewer ID revokes. Managers have no blanket evidence access.
+- Review evidence against valid/asli/terkini/memadai with reason and expiry. Submit simulation only after package, unit answers and K3 are available; reviewer sees the captured questions/answers plus report. Subsequent work, scheme revisions, evidence decisions, expiry, assignment or consent changes invalidate prior approvals. K/BK remains the LSP's authority.
 - The general K3 gate is an internal preparation exercise referencing historical SMKK KUK, not an official certification test or a claim that the same K3 unit is mandatory in every job scheme. Its result and an internal practice threshold of 75 are separate from LSP decisions.
 - Current AI request caps are process-local safeguards, not production account quotas. Authenticated persistent quotas are needed before a public launch.
 
@@ -56,6 +58,7 @@ Interface and responses are in Indonesian. Keep dark/light-blue contrast and leg
 ## Gotchas
 
 - Managed artifact workflows supply PORT and BASE_PATH. Do not create duplicate workflows.
+- `scripts/post-merge.sh` pushes additive DB schema and runs `setup-ujk-review.ts`, which installs database append-only guards and seeds honest, unverified provenance. Do not bypass guards to edit audit history.
 - The originally attached ZIP was not present among transferred project files; its contents have not been imported.
 
 ## Pointers

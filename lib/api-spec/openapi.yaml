@@ -256,6 +256,98 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/review-workspace:
+    get:
+      operationId: getUjkReviewWorkspace
+      responses:
+        "200":
+          description: Server-authorized review workspace
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkReviewWorkspace" }
+  /ujk/schemes:
+    post:
+      operationId: publishUjkScheme
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkSchemeInput" }
+      responses:
+        "200":
+          description: Append-only scheme revision
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkScheme" }
+  /ujk/journeys/{id}/assignment:
+    post:
+      operationId: assignUjkReviewer
+      parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkAssignmentInput" }
+      responses:
+        "200":
+          description: Updated workspace
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkReviewWorkspace" }
+  /ujk/journeys/{id}/review-consent:
+    post:
+      operationId: setUjkReviewConsent
+      parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkReviewConsentInput" }
+      responses:
+        "200":
+          description: Updated journey
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+  /ujk/journeys/{id}/review:
+    get:
+      operationId: getUjkReviewCase
+      parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+      responses:
+        "200":
+          description: Assigned and consented case only
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+    post:
+      operationId: createUjkReview
+      parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkReviewInput" }
+      responses:
+        "200":
+          description: Append-only review
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+  /ujk/journeys/{id}/simulation:
+    post:
+      operationId: submitUjkSimulation
+      parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkSimulationInput" }
+      responses:
+        "200":
+          description: Simulation awaiting human review
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
 components:
   parameters:
     UjkJourneyId:
@@ -264,6 +356,111 @@ components:
       required: true
       schema: { type: string, format: uuid }
   schemas:
+    UjkSchemeInput:
+      type: object
+      properties:
+        roleId: { type: string, minLength: 1 }
+        version: { type: string, minLength: 1, maxLength: 200 }
+        authority: { type: string, minLength: 3, maxLength: 200 }
+        sourceUrl: { type: string, format: uri, maxLength: 2000 }
+        sourceHash: { type: string, pattern: "^[a-f0-9]{64}$" }
+        sourceLocator: { type: string, minLength: 3, maxLength: 2000 }
+        status: { type: string, enum: [unverified, verified, withdrawn] }
+        validFrom: { type: ["string", "null"], format: date-time }
+        validUntil: { type: ["string", "null"], format: date-time }
+        unitCodes: { type: array, uniqueItems: true, items: { type: string, minLength: 1 }, maxItems: 200 }
+        reason: { type: string, minLength: 10, maxLength: 3000 }
+      required: [roleId, version, authority, sourceUrl, sourceHash, sourceLocator, status, validFrom, validUntil, unitCodes, reason]
+    UjkScheme:
+      type: object
+      properties:
+        id: { type: string }
+        roleId: { type: string }
+        level: { type: ["integer", "null"] }
+        version: { type: string }
+        authority: { type: string }
+        sourceUrl: { type: string }
+        sourceHash: { type: string }
+        sourceLocator: { type: string }
+        status: { type: string, enum: [unverified, verified, withdrawn, expired] }
+        validFrom: { type: ["string", "null"] }
+        validUntil: { type: ["string", "null"] }
+        unitCodes: { type: array, items: { type: string } }
+        reason: { type: string }
+        checkedAt: { type: string }
+        checkedBy: { type: string }
+      required: [id, roleId, level, version, authority, sourceUrl, sourceHash, sourceLocator, status, validFrom, validUntil, unitCodes, reason, checkedAt, checkedBy]
+    UjkAssignmentInput:
+      type: object
+      properties:
+        reviewerId: { type: string, maxLength: 200 }
+        reason: { type: string, minLength: 3, maxLength: 2000 }
+      required: [reviewerId, reason]
+    UjkReviewConsentInput:
+      type: object
+      properties:
+        assignmentId: { type: integer, minimum: 1 }
+        consent: { type: boolean }
+      required: [assignmentId, consent]
+    UjkSimulationInput:
+      type: object
+      properties:
+        report: { type: string, minLength: 30, maxLength: 10000 }
+      required: [report]
+    UjkReviewInput:
+      type: object
+      properties:
+        kind: { type: string, enum: [evidence_review, simulation_review] }
+        evidenceId: { type: string, format: uuid }
+        simulationId: { type: integer, minimum: 1 }
+        expectedEventId: { type: integer, minimum: 1 }
+        accepted: { type: boolean }
+        valid: { type: boolean }
+        authentic: { type: boolean }
+        current: { type: boolean }
+        sufficient: { type: boolean }
+        validUntil: { type: string, format: date-time }
+        reason: { type: string, minLength: 10, maxLength: 3000 }
+      required: [kind, expectedEventId, accepted, valid, authentic, current, sufficient, validUntil, reason]
+    UjkReviewContext:
+      type: object
+      properties:
+        assignmentId: { type: ["integer", "null"] }
+        reviewerId: { type: ["string", "null"] }
+        consent: { type: boolean }
+        lastEventId: { type: integer }
+        simulationId: { type: ["integer", "null"] }
+        simulationReport: { type: ["string", "null"] }
+        simulationReason: { type: ["string", "null"] }
+        simulationAttempts: { type: array, items: { $ref: "#/components/schemas/UjkHistoryEvent" } }
+        decisions: { type: array, items: { $ref: "#/components/schemas/UjkReviewDecision" } }
+      required: [assignmentId, reviewerId, consent, lastEventId, simulationId, simulationReport, simulationReason, simulationAttempts, decisions]
+    UjkReviewDecision:
+      type: object
+      properties:
+        id: { type: integer }
+        kind: { type: string }
+        actorId: { type: string }
+        reason: { type: string }
+        createdAt: { type: string }
+      required: [id, kind, actorId, reason, createdAt]
+    UjkReviewCase:
+      type: object
+      properties:
+        id: { type: string }
+        roleId: { type: string }
+        title: { type: string }
+        reviewerId: { type: ["string", "null"] }
+        consent: { type: boolean }
+        canReview: { type: boolean }
+      required: [id, roleId, title, reviewerId, consent, canReview]
+    UjkReviewWorkspace:
+      type: object
+      properties:
+        manager: { type: boolean }
+        cases: { type: array, items: { $ref: "#/components/schemas/UjkReviewCase" } }
+        schemes: { type: array, items: { $ref: "#/components/schemas/UjkScheme" } }
+      required: [manager, cases, schemes]
     UjkJourneyInput:
       type: object
       properties:
@@ -321,7 +518,9 @@ components:
         current: { type: boolean }
         sufficient: { type: boolean }
         reviewStatus: { type: string, enum: [pending, accepted, rejected] }
-      required: [id, unitCode, title, description, fileName, size, contentType, createdAt, downloadUrl, valid, authentic, current, sufficient, reviewStatus]
+        reviewReason: { type: ["string", "null"] }
+        reviewValidUntil: { type: ["string", "null"] }
+      required: [id, unitCode, title, description, fileName, size, contentType, createdAt, downloadUrl, valid, authentic, current, sufficient, reviewStatus, reviewReason, reviewValidUntil]
     UjkSafetyQuestion:
       type: object
       properties:
@@ -342,7 +541,10 @@ components:
         simulationPassed: { type: boolean }
         ruleNote: { type: string }
         schemeNote: { type: string }
-      required: [journey, units, evidence, safetyQuestions, blockers, threshold, simulationPassed, ruleNote, schemeNote]
+        scheme: { anyOf: [{ $ref: "#/components/schemas/UjkScheme" }, { type: "null" }] }
+        requiredUnitCodes: { type: array, items: { type: string } }
+        review: { $ref: "#/components/schemas/UjkReviewContext" }
+      required: [journey, units, evidence, safetyQuestions, blockers, threshold, simulationPassed, ruleNote, schemeNote, scheme, requiredUnitCodes, review]
     UjkSelfAssessmentInput:
       type: object
       properties:

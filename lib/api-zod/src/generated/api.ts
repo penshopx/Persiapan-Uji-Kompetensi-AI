@@ -219,7 +219,9 @@ export const GetUjkJourneyResponse = zod.object({
   "authentic": zod.boolean(),
   "current": zod.boolean(),
   "sufficient": zod.boolean(),
-  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected'])
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
 })),
   "safetyQuestions": zod.array(zod.object({
   "id": zod.string(),
@@ -231,7 +233,51 @@ export const GetUjkJourneyResponse = zod.object({
   "threshold": zod.number().int(),
   "simulationPassed": zod.boolean(),
   "ruleNote": zod.string(),
-  "schemeNote": zod.string()
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
 })
 
 
@@ -293,7 +339,9 @@ export const CreateUjkSelfAssessmentResponse = zod.object({
   "authentic": zod.boolean(),
   "current": zod.boolean(),
   "sufficient": zod.boolean(),
-  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected'])
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
 })),
   "safetyQuestions": zod.array(zod.object({
   "id": zod.string(),
@@ -305,7 +353,51 @@ export const CreateUjkSelfAssessmentResponse = zod.object({
   "threshold": zod.number().int(),
   "simulationPassed": zod.boolean(),
   "ruleNote": zod.string(),
-  "schemeNote": zod.string()
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
 })
 
 
@@ -366,7 +458,9 @@ export const CreateUjkSafetyAttemptResponse = zod.object({
   "authentic": zod.boolean(),
   "current": zod.boolean(),
   "sufficient": zod.boolean(),
-  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected'])
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
 })),
   "safetyQuestions": zod.array(zod.object({
   "id": zod.string(),
@@ -378,7 +472,51 @@ export const CreateUjkSafetyAttemptResponse = zod.object({
   "threshold": zod.number().int(),
   "simulationPassed": zod.boolean(),
   "ruleNote": zod.string(),
-  "schemeNote": zod.string()
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
 })
 })
 
@@ -467,7 +605,9 @@ export const CreateUjkEvidenceResponse = zod.object({
   "authentic": zod.boolean(),
   "current": zod.boolean(),
   "sufficient": zod.boolean(),
-  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected'])
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
 })),
   "safetyQuestions": zod.array(zod.object({
   "id": zod.string(),
@@ -479,7 +619,51 @@ export const CreateUjkEvidenceResponse = zod.object({
   "threshold": zod.number().int(),
   "simulationPassed": zod.boolean(),
   "ruleNote": zod.string(),
-  "schemeNote": zod.string()
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
 })
 
 
@@ -534,7 +718,9 @@ export const CreateUjkCorrectionResponse = zod.object({
   "authentic": zod.boolean(),
   "current": zod.boolean(),
   "sufficient": zod.boolean(),
-  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected'])
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
 })),
   "safetyQuestions": zod.array(zod.object({
   "id": zod.string(),
@@ -546,7 +732,51 @@ export const CreateUjkCorrectionResponse = zod.object({
   "threshold": zod.number().int(),
   "simulationPassed": zod.boolean(),
   "ruleNote": zod.string(),
-  "schemeNote": zod.string()
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
 })
 
 
@@ -570,6 +800,589 @@ export const GetUjkHistoryResponse = zod.object({
   "score": zod.number().int().nullable()
 })),
   "nextCursor": zod.number().int().nullable()
+})
+
+
+export const GetUjkReviewWorkspaceResponse = zod.object({
+  "manager": zod.boolean(),
+  "cases": zod.array(zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "title": zod.string(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "canReview": zod.boolean()
+})),
+  "schemes": zod.array(zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}))
+})
+
+
+
+export const publishUjkSchemeBodyVersionMax = 200;
+
+export const publishUjkSchemeBodyAuthorityMin = 3;
+export const publishUjkSchemeBodyAuthorityMax = 200;
+
+export const publishUjkSchemeBodySourceUrlMax = 2000;
+
+export const publishUjkSchemeBodySourceHashRegExp = new RegExp('^[a-f0-9]{64}$');
+export const publishUjkSchemeBodySourceLocatorMin = 3;
+export const publishUjkSchemeBodySourceLocatorMax = 2000;
+
+
+export const publishUjkSchemeBodyUnitCodesMax = 200;
+
+export const publishUjkSchemeBodyReasonMin = 10;
+export const publishUjkSchemeBodyReasonMax = 3000;
+
+
+
+export const PublishUjkSchemeBody = zod.object({
+  "roleId": zod.string().min(1),
+  "version": zod.string().min(1).max(publishUjkSchemeBodyVersionMax),
+  "authority": zod.string().min(publishUjkSchemeBodyAuthorityMin).max(publishUjkSchemeBodyAuthorityMax),
+  "sourceUrl": zod.string().url().max(publishUjkSchemeBodySourceUrlMax),
+  "sourceHash": zod.string().regex(publishUjkSchemeBodySourceHashRegExp),
+  "sourceLocator": zod.string().min(publishUjkSchemeBodySourceLocatorMin).max(publishUjkSchemeBodySourceLocatorMax),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn']),
+  "validFrom": zod.coerce.date().nullable(),
+  "validUntil": zod.coerce.date().nullable(),
+  "unitCodes": zod.array(zod.string().min(1)).max(publishUjkSchemeBodyUnitCodesMax),
+  "reason": zod.string().min(publishUjkSchemeBodyReasonMin).max(publishUjkSchemeBodyReasonMax)
+})
+
+export const PublishUjkSchemeResponse = zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+})
+
+
+export const AssignUjkReviewerParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const assignUjkReviewerBodyReviewerIdMax = 200;
+
+export const assignUjkReviewerBodyReasonMin = 3;
+export const assignUjkReviewerBodyReasonMax = 2000;
+
+
+
+export const AssignUjkReviewerBody = zod.object({
+  "reviewerId": zod.string().max(assignUjkReviewerBodyReviewerIdMax),
+  "reason": zod.string().min(assignUjkReviewerBodyReasonMin).max(assignUjkReviewerBodyReasonMax)
+})
+
+export const AssignUjkReviewerResponse = zod.object({
+  "manager": zod.boolean(),
+  "cases": zod.array(zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "title": zod.string(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "canReview": zod.boolean()
+})),
+  "schemes": zod.array(zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}))
+})
+
+
+export const SetUjkReviewConsentParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+
+
+
+export const SetUjkReviewConsentBody = zod.object({
+  "assignmentId": zod.number().int().min(1),
+  "consent": zod.boolean()
+})
+
+export const SetUjkReviewConsentResponse = zod.object({
+  "journey": zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "title": zod.string(),
+  "createdAt": zod.string(),
+  "status": zod.enum(['belum_siap', 'perlu_perbaikan', 'siap_diajukan']),
+  "learnedCount": zod.number().int(),
+  "unitCount": zod.number().int(),
+  "schemeVerified": zod.boolean(),
+  "safetyPassed": zod.boolean()
+}),
+  "units": zod.array(zod.object({
+  "code": zod.string(),
+  "title": zod.string(),
+  "learned": zod.boolean(),
+  "confidence": zod.enum(['none', 'learning', 'practiced', 'confident']),
+  "lastScore": zod.number().int().nullable(),
+  "plan": zod.string(),
+  "safetyCritical": zod.boolean(),
+  "evidenceCount": zod.number().int(),
+  "reviewedEvidenceCount": zod.number().int(),
+  "gaps": zod.array(zod.string())
+})),
+  "evidence": zod.array(zod.object({
+  "id": zod.string(),
+  "unitCode": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "fileName": zod.string(),
+  "size": zod.number().int(),
+  "contentType": zod.string(),
+  "createdAt": zod.string(),
+  "downloadUrl": zod.string(),
+  "valid": zod.boolean(),
+  "authentic": zod.boolean(),
+  "current": zod.boolean(),
+  "sufficient": zod.boolean(),
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
+})),
+  "safetyQuestions": zod.array(zod.object({
+  "id": zod.string(),
+  "question": zod.string(),
+  "choices": zod.array(zod.string()),
+  "sourceNote": zod.string()
+})),
+  "blockers": zod.array(zod.string()),
+  "threshold": zod.number().int(),
+  "simulationPassed": zod.boolean(),
+  "ruleNote": zod.string(),
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
+})
+
+
+export const GetUjkReviewCaseParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const GetUjkReviewCaseResponse = zod.object({
+  "journey": zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "title": zod.string(),
+  "createdAt": zod.string(),
+  "status": zod.enum(['belum_siap', 'perlu_perbaikan', 'siap_diajukan']),
+  "learnedCount": zod.number().int(),
+  "unitCount": zod.number().int(),
+  "schemeVerified": zod.boolean(),
+  "safetyPassed": zod.boolean()
+}),
+  "units": zod.array(zod.object({
+  "code": zod.string(),
+  "title": zod.string(),
+  "learned": zod.boolean(),
+  "confidence": zod.enum(['none', 'learning', 'practiced', 'confident']),
+  "lastScore": zod.number().int().nullable(),
+  "plan": zod.string(),
+  "safetyCritical": zod.boolean(),
+  "evidenceCount": zod.number().int(),
+  "reviewedEvidenceCount": zod.number().int(),
+  "gaps": zod.array(zod.string())
+})),
+  "evidence": zod.array(zod.object({
+  "id": zod.string(),
+  "unitCode": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "fileName": zod.string(),
+  "size": zod.number().int(),
+  "contentType": zod.string(),
+  "createdAt": zod.string(),
+  "downloadUrl": zod.string(),
+  "valid": zod.boolean(),
+  "authentic": zod.boolean(),
+  "current": zod.boolean(),
+  "sufficient": zod.boolean(),
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
+})),
+  "safetyQuestions": zod.array(zod.object({
+  "id": zod.string(),
+  "question": zod.string(),
+  "choices": zod.array(zod.string()),
+  "sourceNote": zod.string()
+})),
+  "blockers": zod.array(zod.string()),
+  "threshold": zod.number().int(),
+  "simulationPassed": zod.boolean(),
+  "ruleNote": zod.string(),
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
+})
+
+
+export const CreateUjkReviewParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+
+
+export const createUjkReviewBodyReasonMin = 10;
+export const createUjkReviewBodyReasonMax = 3000;
+
+
+
+export const CreateUjkReviewBody = zod.object({
+  "kind": zod.enum(['evidence_review', 'simulation_review']),
+  "evidenceId": zod.string().uuid().optional(),
+  "simulationId": zod.number().int().min(1).optional(),
+  "expectedEventId": zod.number().int().min(1),
+  "accepted": zod.boolean(),
+  "valid": zod.boolean(),
+  "authentic": zod.boolean(),
+  "current": zod.boolean(),
+  "sufficient": zod.boolean(),
+  "validUntil": zod.coerce.date(),
+  "reason": zod.string().min(createUjkReviewBodyReasonMin).max(createUjkReviewBodyReasonMax)
+})
+
+export const CreateUjkReviewResponse = zod.object({
+  "journey": zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "title": zod.string(),
+  "createdAt": zod.string(),
+  "status": zod.enum(['belum_siap', 'perlu_perbaikan', 'siap_diajukan']),
+  "learnedCount": zod.number().int(),
+  "unitCount": zod.number().int(),
+  "schemeVerified": zod.boolean(),
+  "safetyPassed": zod.boolean()
+}),
+  "units": zod.array(zod.object({
+  "code": zod.string(),
+  "title": zod.string(),
+  "learned": zod.boolean(),
+  "confidence": zod.enum(['none', 'learning', 'practiced', 'confident']),
+  "lastScore": zod.number().int().nullable(),
+  "plan": zod.string(),
+  "safetyCritical": zod.boolean(),
+  "evidenceCount": zod.number().int(),
+  "reviewedEvidenceCount": zod.number().int(),
+  "gaps": zod.array(zod.string())
+})),
+  "evidence": zod.array(zod.object({
+  "id": zod.string(),
+  "unitCode": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "fileName": zod.string(),
+  "size": zod.number().int(),
+  "contentType": zod.string(),
+  "createdAt": zod.string(),
+  "downloadUrl": zod.string(),
+  "valid": zod.boolean(),
+  "authentic": zod.boolean(),
+  "current": zod.boolean(),
+  "sufficient": zod.boolean(),
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
+})),
+  "safetyQuestions": zod.array(zod.object({
+  "id": zod.string(),
+  "question": zod.string(),
+  "choices": zod.array(zod.string()),
+  "sourceNote": zod.string()
+})),
+  "blockers": zod.array(zod.string()),
+  "threshold": zod.number().int(),
+  "simulationPassed": zod.boolean(),
+  "ruleNote": zod.string(),
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
+})
+
+
+export const SubmitUjkSimulationParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const submitUjkSimulationBodyReportMin = 30;
+export const submitUjkSimulationBodyReportMax = 10000;
+
+
+
+export const SubmitUjkSimulationBody = zod.object({
+  "report": zod.string().min(submitUjkSimulationBodyReportMin).max(submitUjkSimulationBodyReportMax)
+})
+
+export const SubmitUjkSimulationResponse = zod.object({
+  "journey": zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "title": zod.string(),
+  "createdAt": zod.string(),
+  "status": zod.enum(['belum_siap', 'perlu_perbaikan', 'siap_diajukan']),
+  "learnedCount": zod.number().int(),
+  "unitCount": zod.number().int(),
+  "schemeVerified": zod.boolean(),
+  "safetyPassed": zod.boolean()
+}),
+  "units": zod.array(zod.object({
+  "code": zod.string(),
+  "title": zod.string(),
+  "learned": zod.boolean(),
+  "confidence": zod.enum(['none', 'learning', 'practiced', 'confident']),
+  "lastScore": zod.number().int().nullable(),
+  "plan": zod.string(),
+  "safetyCritical": zod.boolean(),
+  "evidenceCount": zod.number().int(),
+  "reviewedEvidenceCount": zod.number().int(),
+  "gaps": zod.array(zod.string())
+})),
+  "evidence": zod.array(zod.object({
+  "id": zod.string(),
+  "unitCode": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "fileName": zod.string(),
+  "size": zod.number().int(),
+  "contentType": zod.string(),
+  "createdAt": zod.string(),
+  "downloadUrl": zod.string(),
+  "valid": zod.boolean(),
+  "authentic": zod.boolean(),
+  "current": zod.boolean(),
+  "sufficient": zod.boolean(),
+  "reviewStatus": zod.enum(['pending', 'accepted', 'rejected']),
+  "reviewReason": zod.string().nullable(),
+  "reviewValidUntil": zod.string().nullable()
+})),
+  "safetyQuestions": zod.array(zod.object({
+  "id": zod.string(),
+  "question": zod.string(),
+  "choices": zod.array(zod.string()),
+  "sourceNote": zod.string()
+})),
+  "blockers": zod.array(zod.string()),
+  "threshold": zod.number().int(),
+  "simulationPassed": zod.boolean(),
+  "ruleNote": zod.string(),
+  "schemeNote": zod.string(),
+  "scheme": zod.union([zod.object({
+  "id": zod.string(),
+  "roleId": zod.string(),
+  "level": zod.number().int().nullable(),
+  "version": zod.string(),
+  "authority": zod.string(),
+  "sourceUrl": zod.string(),
+  "sourceHash": zod.string(),
+  "sourceLocator": zod.string(),
+  "status": zod.enum(['unverified', 'verified', 'withdrawn', 'expired']),
+  "validFrom": zod.string().nullable(),
+  "validUntil": zod.string().nullable(),
+  "unitCodes": zod.array(zod.string()),
+  "reason": zod.string(),
+  "checkedAt": zod.string(),
+  "checkedBy": zod.string()
+}),zod.null()]),
+  "requiredUnitCodes": zod.array(zod.string()),
+  "review": zod.object({
+  "assignmentId": zod.number().int().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "consent": zod.boolean(),
+  "lastEventId": zod.number().int(),
+  "simulationId": zod.number().int().nullable(),
+  "simulationReport": zod.string().nullable(),
+  "simulationReason": zod.string().nullable(),
+  "simulationAttempts": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "unitCode": zod.string().nullable(),
+  "summary": zod.string(),
+  "createdAt": zod.string(),
+  "question": zod.string().nullable(),
+  "answer": zod.string().nullable(),
+  "score": zod.number().int().nullable()
+})),
+  "decisions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "kind": zod.string(),
+  "actorId": zod.string(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+}))
+})
 })
 
 

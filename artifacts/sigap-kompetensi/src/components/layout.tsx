@@ -20,9 +20,9 @@ export function Layout({ children }: { children: ReactNode }) {
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { user } = useUser();
-  const items = isSignedIn ? [{ href: '/paspor', label: 'Paspor' }, ...nav] : nav;
+  const items = isSignedIn ? [{ href: '/paspor', label: 'Paspor' }, { href: '/review', label: 'Tinjauan' }, ...nav] : nav;
   useEffect(() => {
-    const label = [{ href: '/paspor', label: 'Paspor' }, ...nav].find((n) => (n.href === '/' ? loc === '/' : loc.startsWith(n.href)))?.label ?? (loc.startsWith('/ujk/') ? 'Perjalanan UJK' : undefined) ?? 'Halaman tidak ditemukan';
+    const label = [{ href: '/paspor', label: 'Paspor' }, { href: '/review', label: 'Tinjauan' }, ...nav].find((n) => (n.href === '/' ? loc === '/' : loc.startsWith(n.href)))?.label ?? (loc.startsWith('/ujk/') ? 'Perjalanan UJK' : undefined) ?? 'Halaman tidak ditemukan';
     const descriptions: Record<string, string> = {
       '/': 'Ringkasan cakupan jabatan, unit rujukan, dan progres persiapan uji kompetensi konstruksi.',
       '/katalog': 'Telusuri klasifikasi, jabatan, jenjang, serta dokumen SKKNI dan SKKK untuk latihan kompetensi.',

@@ -22,4 +22,8 @@ export interface UjkEvidence {
   current: boolean;
   sufficient: boolean;
   reviewStatus: UjkEvidenceReviewStatus;
+  /** @nullable */
+  reviewReason: string | null;
+  /** @nullable */
+  reviewValidUntil: string | null;
 }

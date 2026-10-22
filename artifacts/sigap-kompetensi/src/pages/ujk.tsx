@@ -3,7 +3,7 @@ import { Link, useParams } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { Download, FileUp, PlayCircle } from 'lucide-react';
 import {
-  useCreateUjkSelfAssessment, useCreateUjkSafetyAttempt, useRequestUjkEvidenceUpload, useCreateUjkEvidence, useCreateUjkCorrection,
+  useCreateUjkSelfAssessment, useCreateUjkSafetyAttempt, useRequestUjkEvidenceUpload, useCreateUjkEvidence, useCreateUjkCorrection, useSetUjkReviewConsent, useSubmitUjkSimulation,
   getGetUjkJourneyQueryKey, type UjkJourneyDetail, type UjkUnitState,
 } from '@workspace/api-client-react';
 import { Empty, ErrorBlock, Skeleton } from '@/components/bits';
@@ -14,8 +14,8 @@ const field = 'w-full border-2 border-input bg-card px-3 py-3 outline-none focus
 const btn = 'bg-primary px-5 py-2.5 font-bold text-primary-foreground disabled:opacity-40';
 const ALLOWED = ['application/pdf', 'image/png', 'image/jpeg'] as const;
 const MAX = 10 * 1024 * 1024;
-type Tab = 'unit' | 'k3' | 'bukti' | 'koreksi' | 'riwayat';
-const tabs: [Tab, string][] = [['unit', 'Penilaian diri'], ['k3', 'K3'], ['bukti', 'Bukti'], ['koreksi', 'Koreksi'], ['riwayat', 'Riwayat']];
+type Tab = 'tinjau' | 'unit' | 'k3' | 'bukti' | 'koreksi' | 'riwayat';
+const tabs: [Tab, string][] = [['tinjau', 'Tinjauan'], ['unit', 'Penilaian diri'], ['k3', 'K3'], ['bukti', 'Bukti'], ['koreksi', 'Koreksi'], ['riwayat', 'Riwayat']];
 
 function Err({ m }: { m: string | null }) {
   return m ? <p role="alert" data-testid="text-form-error" className="border border-destructive/60 bg-destructive/10 p-3 text-sm">{m}</p> : null;
@@ -29,6 +29,8 @@ export default function Ujk() {
   const invalidate = useInvalidateJourney();
   const qc = useQueryClient();
   const d = q.data;
+  useEffect(() => { const t = setInterval(() => { invalidate(id); }, 30000); return () => clearInterval(t); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { invalidate(id); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const afterChange = (detail?: UjkJourneyDetail) => {
     if (detail) qc.setQueryData(getGetUjkJourneyQueryKey(id), detail);
@@ -71,6 +73,7 @@ export default function Ujk() {
         ))}
       </div>
 
+      {tab === 'tinjau' && <ReviewTab id={id} d={d} onDone={afterChange} />}
       {tab === 'unit' && <UnitsTab id={id} d={d} onDone={afterChange} />}
       {tab === 'k3' && <SafetyTab id={id} d={d} onDone={afterChange} />}
       {tab === 'bukti' && <EvidenceTab id={id} d={d} onDone={afterChange} />}
@@ -121,7 +124,7 @@ function UnitsTab({ id, d, onDone }: { id: string; d: UjkJourneyDetail; onDone: 
         {d.units.map((u) => (
           <li key={u.code} className={`border bg-card p-3 ${u.code === code ? 'border-primary' : 'border-border'}`}>
             <button type="button" data-testid={`button-unit-${u.code}`} onClick={() => setCode(u.code)} className="block w-full text-left">
-              <p className="mono text-xs text-primary">{u.code}{u.safetyCritical ? ' · kritis K3' : ''}</p>
+              <p className="mono text-xs text-primary">{u.code}{u.safetyCritical ? ' · kritis K3' : ''}{d.requiredUnitCodes.includes(u.code) ? ' · wajib skema' : d.requiredUnitCodes.length ? ' · rujukan' : ''}</p>
               <p className="font-bold">{u.title}</p>
               <p className="mono mt-1 text-[11px] text-muted-foreground">{u.learned ? 'dipelajari' : 'belum'} · {confidenceText[u.confidence]} · skor latihan {u.lastScore ?? '-'} · bukti {u.evidenceCount} (ditinjau {u.reviewedEvidenceCount})</p>
             </button>
@@ -234,7 +237,7 @@ function EvidenceTab({ id, d, onDone }: { id: string; d: UjkJourneyDetail; onDon
             <p className="font-bold">{ev.title}</p>
             <p className="text-muted-foreground">{ev.description}</p>
             <p className="mono mt-1 text-[11px] text-muted-foreground">{ev.fileName} · {(ev.size / 1024).toFixed(0)} KB · {fmtDate(ev.createdAt)}</p>
-            <p className="mono mt-1 text-[11px]">Klaim Anda: {claims.filter(([k]) => ev[k]).map(([, l]) => l).join(', ') || 'tidak ada'} · tinjauan manusia: {ev.reviewStatus === 'pending' ? 'belum ditinjau' : ev.reviewStatus === 'accepted' ? 'diterima' : 'ditolak'}</p>
+            <p className="mono mt-1 text-[11px]">Klaim Anda: {claims.filter(([k]) => ev[k]).map(([, l]) => l).join(', ') || 'tidak ada'} · tinjauan manusia: {ev.reviewStatus === 'pending' ? 'belum ditinjau' : ev.reviewStatus === 'accepted' ? 'diterima' : 'ditolak'}{ev.reviewValidUntil ? ` · berlaku sampai ${new Date(ev.reviewValidUntil).toLocaleDateString('id-ID')}` : ''}{ev.reviewReason ? ` · ${ev.reviewReason}` : ''}</p>
             <a href={ev.downloadUrl} target="_blank" rel="noreferrer" data-testid={`link-download-${ev.id}`} className="mt-1 inline-flex items-center gap-1 font-bold text-primary"><Download className="h-4 w-4" /> Unduh (privat)</a>
           </li>
         ))}
@@ -275,5 +278,57 @@ function CorrectionTab({ id, onDone }: { id: string; onDone: (x?: UjkJourneyDeta
       {ok && <p data-testid="text-correction-ok" className="text-sm text-primary">Koreksi ditambahkan ke riwayat.</p>}
       <button data-testid="button-submit-correction" disabled={m.isPending || note.trim().length < 3} className={btn}>{m.isPending ? 'Menambahkan…' : 'Tambahkan koreksi'}</button>
     </form>
+  );
+}
+
+function ReviewTab({ id, d, onDone }: { id: string; d: UjkJourneyDetail; onDone: (x?: UjkJourneyDetail) => void }) {
+  const consent = useSetUjkReviewConsent();
+  const sim = useSubmitUjkSimulation();
+  const [report, setReport] = useState('');
+  const [err, setErr] = useState<string | null>(null);
+  const r = d.review;
+  const s = d.scheme;
+  const required = d.units.filter((u) => d.requiredUnitCodes.includes(u.code));
+  const reference = d.units.filter((u) => !d.requiredUnitCodes.includes(u.code));
+  const setConsent = (v: boolean) => {
+    if (r.assignmentId == null) return; setErr(null);
+    consent.mutate({ id, data: { assignmentId: r.assignmentId, consent: v } }, { onSuccess: (x) => onDone(x), onError: (x) => setErr(errMsg(x)) });
+  };
+  const send = (e: React.FormEvent) => {
+    e.preventDefault(); setErr(null);
+    sim.mutate({ id, data: { report: report.trim() } }, { onSuccess: (x) => { setReport(''); onDone(x); }, onError: (x) => setErr(errMsg(x)) });
+  };
+  return (
+    <div className="grid gap-6 lg:grid-cols-2" data-testid="panel-review-tab">
+      <div className="space-y-4">
+        <div className="border border-border bg-card p-4 text-sm" data-testid="panel-scheme">
+          <p className="font-extrabold">Skema jabatan</p>
+          {!s ? <p className="mt-1 text-muted-foreground">Belum ada skema terverifikasi. Kesiapan belum dapat dinyatakan sah.</p> : (
+            <><p className="mono mt-1 text-xs">v{s.version} · {s.status === 'verified' ? 'terverifikasi' : s.status === 'unverified' ? 'menunggu verifikasi' : s.status === 'withdrawn' ? 'ditarik' : 'kedaluwarsa'} · {s.authority}</p>
+              <p className="mono text-[11px] text-muted-foreground">Berlaku {s.validFrom ? new Date(s.validFrom).toLocaleDateString('id-ID') : 'Belum dikonfirmasi'} - {s.validUntil ? new Date(s.validUntil).toLocaleDateString('id-ID') : 'Belum dikonfirmasi'}</p>
+              {s.sourceUrl && <a href={s.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-primary underline">Sumber skema</a>}</>)}
+          <p className="mt-2 text-xs text-muted-foreground">Kesiapan hanya menghitung unit wajib ({required.length}); unit rujukan ({reference.length}) bersifat latihan.</p>
+        </div>
+        <div className="space-y-2 border border-border bg-card p-4 text-sm" data-testid="panel-consent">
+          <p className="font-extrabold">Peninjau dan persetujuan</p>
+          {r.assignmentId == null ? <p className="text-muted-foreground">Belum ada peninjau ditugaskan. Anda tidak dapat menugaskan diri sendiri.</p> : (<>
+            <p className="mono text-xs">Peninjau: {r.reviewerId} · persetujuan: {r.consent ? 'diberikan' : 'belum diberikan'}</p>
+            <p className="text-xs text-muted-foreground">Peninjau baru bisa membuka bukti dan laporan Anda setelah Anda setuju. Anda dapat mencabut kapan saja.</p>
+            <button data-testid="button-consent-toggle" disabled={consent.isPending} onClick={() => setConsent(!r.consent)} className={r.consent ? 'border-2 border-destructive px-4 py-2 font-bold text-destructive' : btn}>{r.consent ? 'Cabut persetujuan' : 'Setujui peninjauan'}</button></>)}
+          <Err m={err} />
+        </div>
+        <div className="space-y-2 border border-border bg-card p-4 text-sm" data-testid="list-decisions">
+          <p className="font-extrabold">Keputusan peninjau</p>
+          {r.decisions.length === 0 ? <p className="text-muted-foreground">Belum ada keputusan.</p> : r.decisions.map((x) => <p key={x.id} className="border-l-2 border-primary pl-2"><span className="mono text-[11px] text-muted-foreground">{fmtDate(x.createdAt)} · {x.kind}</span><br />{x.reason}</p>)}
+        </div>
+      </div>
+      <form onSubmit={send} className="h-fit space-y-3 border-2 border-primary bg-card p-4" data-testid="form-simulation">
+        <p className="font-extrabold">Laporan simulasi</p>
+        <p className="text-xs text-muted-foreground">Persetujuan simulasi gugur jika Anda menambah pekerjaan atau bukti, atau ada tinjauan bukti baru. Kirim ulang laporan setelah perubahan.</p>
+        {r.simulationReport && <div className="border-l-4 border-primary bg-primary/10 p-2 text-xs"><p className="mono">Terkirim terakhir (#{r.simulationId}) · {d.simulationPassed ? 'diterima peninjau' : 'belum diterima'}</p><p className="mt-1 whitespace-pre-wrap">{r.simulationReport}</p>{r.simulationReason && <p className="mt-1">Alasan: {r.simulationReason}</p>}</div>}
+        <textarea data-testid="input-simulation" rows={8} minLength={30} maxLength={10000} className={field} value={report} onChange={(e) => setReport(e.target.value)} placeholder="Ceritakan simulasi kerja yang Anda lakukan (minimal 30 karakter)" />
+        <button data-testid="button-submit-simulation" disabled={sim.isPending || report.trim().length < 30} className={btn}>{sim.isPending ? 'Mengirim…' : 'Kirim laporan'}</button>
+      </form>
+    </div>
   );
 }

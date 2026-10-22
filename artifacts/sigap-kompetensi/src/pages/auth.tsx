@@ -14,7 +14,7 @@ function Shell({ children, mode }: { children: React.ReactNode; mode: 'in' | 'up
           <h1 className="max-w-lg text-5xl font-extrabold leading-[1.05] tracking-tight">Kemajuan jujur, bukti nyata, bukan skor AI.</h1>
           <ul className="max-w-md space-y-2 text-muted-foreground">
             <li>Catatan belajar tersimpan per akun, riwayat hanya bertambah.</li>
-            <li>Bukti kerja disimpan privat dan hanya Anda yang dapat membukanya.</li>
+            <li>Bukti kerja disimpan privat. Peninjau yang ditugaskan hanya dapat membukanya dengan persetujuan Anda.</li>
             <li>Kami tidak meminta NIK. Kelulusan hanya ditetapkan LSP.</li>
           </ul>
         </div>

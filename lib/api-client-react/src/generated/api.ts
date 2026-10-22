@@ -26,6 +26,7 @@ import type {
   HealthStatus,
   PracticeTurnInput,
   PracticeTurnResponse,
+  UjkAssignmentInput,
   UjkCorrectionInput,
   UjkEvidenceInput,
   UjkHistory,
@@ -33,9 +34,15 @@ import type {
   UjkJourneyInput,
   UjkJourneySummary,
   UjkPassport,
+  UjkReviewConsentInput,
+  UjkReviewInput,
+  UjkReviewWorkspace,
   UjkSafetyInput,
   UjkSafetyResult,
+  UjkScheme,
+  UjkSchemeInput,
   UjkSelfAssessmentInput,
+  UjkSimulationInput,
   UjkUploadInput,
   UjkUploadResponse
 } from './api.schemas';
@@ -1101,4 +1108,560 @@ export function useGetUjkHistory<TData = Awaited<ReturnType<typeof getUjkHistory
 
 
 
+
+export const getGetUjkReviewWorkspaceUrl = () => {
+
+
+
+
+  return `/api/ujk/review-workspace`
+}
+
+export const getUjkReviewWorkspace = async ( options?: Parameters<typeof customFetch>[1]): Promise<UjkReviewWorkspace> => {
+
+  return customFetch<UjkReviewWorkspace>(getGetUjkReviewWorkspaceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUjkReviewWorkspaceQueryKey = () => {
+    return [
+    `/api/ujk/review-workspace`
+    ] as const;
+    }
+
+
+export const getGetUjkReviewWorkspaceQueryOptions = <TData = Awaited<ReturnType<typeof getUjkReviewWorkspace>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkReviewWorkspace>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUjkReviewWorkspaceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUjkReviewWorkspace>>> = ({ signal }) => getUjkReviewWorkspace({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUjkReviewWorkspace>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUjkReviewWorkspaceQueryResult = NonNullable<Awaited<ReturnType<typeof getUjkReviewWorkspace>>>
+export type GetUjkReviewWorkspaceQueryError = ErrorType<unknown>
+
+
+
+export function useGetUjkReviewWorkspace<TData = Awaited<ReturnType<typeof getUjkReviewWorkspace>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkReviewWorkspace>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUjkReviewWorkspaceQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPublishUjkSchemeUrl = () => {
+
+
+
+
+  return `/api/ujk/schemes`
+}
+
+export const publishUjkScheme = async (ujkSchemeInput: UjkSchemeInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkScheme> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkScheme>(getPublishUjkSchemeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkSchemeInput)
+  }
+);}
+
+
+
+
+
+export const getPublishUjkSchemeMutationKey = () => ['publishUjkScheme'] as const;
+
+export const getPublishUjkSchemeMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof publishUjkScheme>>, TError,PublishUjkSchemeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof publishUjkScheme>>, TError,PublishUjkSchemeMutationVariables, TContext> => {
+
+const mutationKey = getPublishUjkSchemeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof publishUjkScheme>>, PublishUjkSchemeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  publishUjkScheme(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PublishUjkSchemeMutationResult = NonNullable<Awaited<ReturnType<typeof publishUjkScheme>>>
+    export type PublishUjkSchemeMutationBody = BodyType<UjkSchemeInput>
+    export type PublishUjkSchemeMutationError = ErrorType<unknown>
+    export type PublishUjkSchemeMutationVariables = {data: BodyType<UjkSchemeInput>}
+
+    export const usePublishUjkScheme = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof publishUjkScheme>>, TError,PublishUjkSchemeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof publishUjkScheme>>,
+        TError,
+        PublishUjkSchemeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPublishUjkSchemeMutationOptions(options));
+    }
+
+export const getAssignUjkReviewerUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/assignment`
+}
+
+export const assignUjkReviewer = async (id: string,
+    ujkAssignmentInput: UjkAssignmentInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkReviewWorkspace> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkReviewWorkspace>(getAssignUjkReviewerUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkAssignmentInput)
+  }
+);}
+
+
+
+
+
+export const getAssignUjkReviewerMutationKey = () => ['assignUjkReviewer'] as const;
+
+export const getAssignUjkReviewerMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignUjkReviewer>>, TError,AssignUjkReviewerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof assignUjkReviewer>>, TError,AssignUjkReviewerMutationVariables, TContext> => {
+
+const mutationKey = getAssignUjkReviewerMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof assignUjkReviewer>>, AssignUjkReviewerMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  assignUjkReviewer(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AssignUjkReviewerMutationResult = NonNullable<Awaited<ReturnType<typeof assignUjkReviewer>>>
+    export type AssignUjkReviewerMutationBody = BodyType<UjkAssignmentInput>
+    export type AssignUjkReviewerMutationError = ErrorType<unknown>
+    export type AssignUjkReviewerMutationVariables = {id: string;data: BodyType<UjkAssignmentInput>}
+
+    export const useAssignUjkReviewer = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignUjkReviewer>>, TError,AssignUjkReviewerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof assignUjkReviewer>>,
+        TError,
+        AssignUjkReviewerMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAssignUjkReviewerMutationOptions(options));
+    }
+
+export const getSetUjkReviewConsentUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/review-consent`
+}
+
+export const setUjkReviewConsent = async (id: string,
+    ujkReviewConsentInput: UjkReviewConsentInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneyDetail> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkJourneyDetail>(getSetUjkReviewConsentUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkReviewConsentInput)
+  }
+);}
+
+
+
+
+
+export const getSetUjkReviewConsentMutationKey = () => ['setUjkReviewConsent'] as const;
+
+export const getSetUjkReviewConsentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setUjkReviewConsent>>, TError,SetUjkReviewConsentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setUjkReviewConsent>>, TError,SetUjkReviewConsentMutationVariables, TContext> => {
+
+const mutationKey = getSetUjkReviewConsentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setUjkReviewConsent>>, SetUjkReviewConsentMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  setUjkReviewConsent(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetUjkReviewConsentMutationResult = NonNullable<Awaited<ReturnType<typeof setUjkReviewConsent>>>
+    export type SetUjkReviewConsentMutationBody = BodyType<UjkReviewConsentInput>
+    export type SetUjkReviewConsentMutationError = ErrorType<unknown>
+    export type SetUjkReviewConsentMutationVariables = {id: string;data: BodyType<UjkReviewConsentInput>}
+
+    export const useSetUjkReviewConsent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setUjkReviewConsent>>, TError,SetUjkReviewConsentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setUjkReviewConsent>>,
+        TError,
+        SetUjkReviewConsentMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSetUjkReviewConsentMutationOptions(options));
+    }
+
+export const getGetUjkReviewCaseUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/review`
+}
+
+export const getUjkReviewCase = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneyDetail> => {
+
+  return customFetch<UjkJourneyDetail>(getGetUjkReviewCaseUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUjkReviewCaseQueryKey = (id: string,) => {
+    return [
+    `/api/ujk/journeys/${id}/review`
+    ] as const;
+    }
+
+
+export const getGetUjkReviewCaseQueryOptions = <TData = Awaited<ReturnType<typeof getUjkReviewCase>>, TError = ErrorType<unknown>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkReviewCase>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUjkReviewCaseQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUjkReviewCase>>> = ({ signal }) => getUjkReviewCase(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUjkReviewCase>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUjkReviewCaseQueryResult = NonNullable<Awaited<ReturnType<typeof getUjkReviewCase>>>
+export type GetUjkReviewCaseQueryError = ErrorType<unknown>
+
+
+
+export function useGetUjkReviewCase<TData = Awaited<ReturnType<typeof getUjkReviewCase>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkReviewCase>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUjkReviewCaseQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateUjkReviewUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/review`
+}
+
+export const createUjkReview = async (id: string,
+    ujkReviewInput: UjkReviewInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneyDetail> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkJourneyDetail>(getCreateUjkReviewUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkReviewInput)
+  }
+);}
+
+
+
+
+
+export const getCreateUjkReviewMutationKey = () => ['createUjkReview'] as const;
+
+export const getCreateUjkReviewMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkReview>>, TError,CreateUjkReviewMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUjkReview>>, TError,CreateUjkReviewMutationVariables, TContext> => {
+
+const mutationKey = getCreateUjkReviewMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUjkReview>>, CreateUjkReviewMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  createUjkReview(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUjkReviewMutationResult = NonNullable<Awaited<ReturnType<typeof createUjkReview>>>
+    export type CreateUjkReviewMutationBody = BodyType<UjkReviewInput>
+    export type CreateUjkReviewMutationError = ErrorType<unknown>
+    export type CreateUjkReviewMutationVariables = {id: string;data: BodyType<UjkReviewInput>}
+
+    export const useCreateUjkReview = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkReview>>, TError,CreateUjkReviewMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createUjkReview>>,
+        TError,
+        CreateUjkReviewMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUjkReviewMutationOptions(options));
+    }
+
+export const getSubmitUjkSimulationUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/simulation`
+}
+
+export const submitUjkSimulation = async (id: string,
+    ujkSimulationInput: UjkSimulationInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkJourneyDetail> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkJourneyDetail>(getSubmitUjkSimulationUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkSimulationInput)
+  }
+);}
+
+
+
+
+
+export const getSubmitUjkSimulationMutationKey = () => ['submitUjkSimulation'] as const;
+
+export const getSubmitUjkSimulationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitUjkSimulation>>, TError,SubmitUjkSimulationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitUjkSimulation>>, TError,SubmitUjkSimulationMutationVariables, TContext> => {
+
+const mutationKey = getSubmitUjkSimulationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitUjkSimulation>>, SubmitUjkSimulationMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  submitUjkSimulation(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitUjkSimulationMutationResult = NonNullable<Awaited<ReturnType<typeof submitUjkSimulation>>>
+    export type SubmitUjkSimulationMutationBody = BodyType<UjkSimulationInput>
+    export type SubmitUjkSimulationMutationError = ErrorType<unknown>
+    export type SubmitUjkSimulationMutationVariables = {id: string;data: BodyType<UjkSimulationInput>}
+
+    export const useSubmitUjkSimulation = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitUjkSimulation>>, TError,SubmitUjkSimulationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitUjkSimulation>>,
+        TError,
+        SubmitUjkSimulationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSubmitUjkSimulationMutationOptions(options));
+    }
 

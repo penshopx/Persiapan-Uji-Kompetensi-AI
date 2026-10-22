@@ -20,3 +20,9 @@ Bedakan daftar unit dalam dokumen standar dari paket unit wajib dalam skema sert
 **Why:** Daftar jabatan awal mencakup beberapa jenjang yang memakai dokumen sumber yang sama, tetapi dokumen standar saja tidak membuktikan paket sertifikasi per jenjang.
 
 **How to apply:** Tampilkan unit sebagai rujukan latihan sampai ada verifikasi skema; jangan menghasilkan kewajiban atau klaim kelulusan dari hubungan dokumen–jabatan saja.
+
+Lisensi LSP aktif dan jumlah unit pada direktori BNSP tidak membuktikan bahwa revisi paket tertentu sudah disahkan dan berlaku. Bila PDF skema menyebut pembaruan masih menunggu persetujuan, pertahankan status belum terverifikasi meski situs pemasaran menampilkan paketnya.
+
+**Why:** Penelusuran sumber resmi pada 10 Oktober 2026 menemukan direktori BNSP dan halaman SARSI menampilkan paket per jenjang, sementara PDF SARSI memuat catatan menunggu persetujuan pembaruan dan tidak memberi nomor revisi/periode efektif yang pasti.
+
+**How to apply:** Minta dokumen skema yang disahkan beserta kode unit, nomor revisi dan masa berlaku sebelum mengaktifkan paket wajib. Jangan menafsirkan tanggal pengecekan sumber sebagai tanggal efektif skema.
