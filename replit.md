@@ -45,7 +45,7 @@ Ruang persiapan uji kompetensi konstruksi dengan katalog sumber standar dan lati
 - Bootstrap managers via the trusted Clerk server/admin interface: set private metadata `ujkRole` to `manager` for the institution-approved account. Never use unsafe/public metadata or participant self-assignment. A manager appoints another existing Clerk account per case; the participant consents to that exact assignment before private case access. Blank reviewer ID revokes. Managers have no blanket evidence access.
 - Review evidence against valid/asli/terkini/memadai with reason and expiry. Submit simulation only after package, unit answers and K3 are available; reviewer sees the captured questions/answers plus report. Subsequent work, scheme revisions, evidence decisions, expiry, assignment or consent changes invalidate prior approvals. K/BK remains the LSP's authority.
 - The general K3 gate is an internal preparation exercise referencing historical SMKK KUK, not an official certification test or a claim that the same K3 unit is mandatory in every job scheme. Its result and an internal practice threshold of 75 are separate from LSP decisions.
-- Current AI request caps are process-local safeguards, not production account quotas. Authenticated persistent quotas are needed before a public launch.
+- AI quotas and concurrency leases are persisted atomically in PostgreSQL across replicas. Upload reservations are counted before signing; expired staging cleanup runs on startup and hourly. See `docs/resource-quotas.md` for limits, UTC windows, cleanup safety and direct PUT limitations.
 
 ## Product
 

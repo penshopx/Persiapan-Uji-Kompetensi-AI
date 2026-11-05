@@ -7,12 +7,9 @@ import { prepareJournal, completeJournal, failJournal, type Journal } from "../l
 import { UjkError } from "../lib/ujk-service";
 import { getClerkProxyHost } from "../middlewares/clerkProxyMiddleware";
 import { getRuntimeStatus } from "../lib/hermes-runtime";
+import { reserveAi, releaseAi, QuotaError } from "../lib/resource-quotas";
 
 const router: IRouter = Router();
-const usage = new Map<string, { count: number; resetAt: number }>();
-let globalDay = "";
-let globalCalls = 0;
-let activeCalls = 0;
 
 router.get("/competency/catalog", (_req, res) => { res.json(catalog); });
 router.get("/competency/summary", async (_req, res) => {
@@ -55,22 +52,15 @@ router.post("/agents/practice-turn", async (req, res): Promise<void> => {
     res.status(error instanceof UjkError ? error.status : 503).json({ error: error instanceof UjkError ? error.message : "Paspor belum dapat diakses. Coba kembali." });
     return;
   }
-  const now = Date.now();
-  const day = new Date(now).toISOString().slice(0, 10);
-  if (day !== globalDay) { globalDay = day; globalCalls = 0; }
-  for (const [key, value] of usage) if (value.resetAt <= now) usage.delete(key);
-  const key = getAuth(req).userId ?? req.ip ?? req.socket.remoteAddress ?? "anonymous";
-  const bucket = usage.get(key) ?? { count: 0, resetAt: now + 3600000 };
-  if (bucket.count >= 20 || globalCalls >= 200 || activeCalls >= 3) {
+  let lease: string;
+  try {
+    lease = await reserveAi(getAuth(req).userId, req.ip ?? req.socket.remoteAddress ?? "anonymous");
+  } catch (error) {
     try { await failJournal(journal); } catch { /* Fail closed; do not invoke AI. */ }
-    res.setHeader("Retry-After", "60");
-    res.status(429).json({ error: "Batas latihan AI sementara tercapai. Coba kembali nanti." });
+    if (error instanceof QuotaError) res.setHeader("Retry-After", String(error.retryAfter));
+    res.status(error instanceof QuotaError ? 429 : 503).json({ error: error instanceof QuotaError ? error.message : "Kuota AI belum dapat diperiksa. Coba kembali; AI tidak dijalankan." });
     return;
   }
-  bucket.count++;
-  usage.set(key, bucket);
-  globalCalls++;
-  activeCalls++;
   try {
     const result = await runPracticeTurn(context, input, getAuth(req).userId ?? undefined, journal?.executionId);
     await completeJournal(journal, input, result);
@@ -80,7 +70,9 @@ router.post("/agents/practice-turn", async (req, res): Promise<void> => {
     req.log.warn({ errorType: error instanceof Error ? error.name : "Unknown" }, "Competency AI request failed");
     res.status(503).json({ error: "Agen AI belum berhasil menyelesaikan permintaan. Jawaban Anda tidak dihapus; coba lagi nanti." });
   } finally {
-    activeCalls--;
+    try { await releaseAi(lease); } catch {
+      req.log.warn("AI lease release failed; lease will expire automatically");
+    }
   }
 });
 

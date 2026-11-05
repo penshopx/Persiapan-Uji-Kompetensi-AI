@@ -1,14 +1,16 @@
 import { Router, type Request, type Response } from "express";
 import { getAuth } from "@clerk/express";
 import { and, eq, desc, lt } from "drizzle-orm";
-import { db, ujkJourneys, ujkEvents, ujkUploads } from "@workspace/db";
+import { db, ujkJourneys, ujkEvents } from "@workspace/db";
 import * as api from "@workspace/api-zod";
 import { catalog } from "../lib/competency-catalog";
 import { journeyDetail, ownedJourney, requireJourneyUnit, UjkError } from "../lib/ujk-service";
 import { safetyQuestions } from "../lib/ujk-rules";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { getClerkProxyHost } from "../middlewares/clerkProxyMiddleware";
-import { randomUUID } from "node:crypto";
+import { reserveUpload } from "../lib/ujk-upload-quota";
+import { QuotaError } from "../lib/resource-quotas";
+import { finalizeEvidence } from "../lib/ujk-evidence";
 
 const router = Router();
 export const ujkStorage = new ObjectStorageService();
@@ -22,7 +24,10 @@ export const guarded = (fn: (req: Request, res: Response, owner: string) => Prom
     }
     await fn(req, res, owner);
   } catch (error) {
-    if (error instanceof UjkError) { res.status(error.status).json({ error: error.message }); return; }
+    if (error instanceof UjkError) {
+      if (error instanceof QuotaError) res.setHeader("Retry-After", String(error.retryAfter));
+      res.status(error.status).json({ error: error.message }); return;
+    }
     req.log.error({ errorType: error instanceof Error ? error.name : "Unknown" }, "UJK request failed");
     res.status(503).json({ error: "Data belum berhasil diproses. Isian Anda tidak dihapus; coba kembali." });
   }
@@ -80,12 +85,12 @@ router.post("/ujk/journeys/:id/uploads", guarded(async (req, res, owner) => {
   const parsed = api.RequestUjkEvidenceUploadBody.safeParse(req.body);
   if (!parsed.success) throw new UjkError(400, "Gunakan PDF, PNG, atau JPEG berukuran maksimal 10 MB.");
   requireJourneyUnit(journey, parsed.data.unitCode);
-  const uploadURL = await ujkStorage.getObjectEntityUploadURL();
-  const objectPath = ujkStorage.normalizeObjectEntityPath(uploadURL);
-  const [upload] = await db.insert(ujkUploads).values({
-    ownerId: owner, journeyId: journey.id, unitCode: parsed.data.unitCode,
-    fileName: parsed.data.name, size: parsed.data.size, contentType: parsed.data.contentType, objectPath,
-  }).returning();
+  // Commit reservation before issuing a writable URL: every URL has a tracked cleanup target.
+  const upload = await reserveUpload(owner, {
+    journeyId: journey.id, unitCode: parsed.data.unitCode,
+    fileName: parsed.data.name, size: parsed.data.size, contentType: parsed.data.contentType,
+  });
+  const uploadURL = await ujkStorage.getObjectEntityUploadURL(upload.objectPath);
   res.json(api.RequestUjkEvidenceUploadResponse.parse({ uploadId: upload.id, uploadURL }));
 }));
 
@@ -94,27 +99,7 @@ router.post("/ujk/journeys/:id/evidence", guarded(async (req, res, owner) => {
   const parsed = api.CreateUjkEvidenceBody.safeParse(req.body);
   if (!parsed.success || !parsed.data.authentic) throw new UjkError(400, "Lengkapi judul, uraian, dan pernyataan bahwa bukti berasal dari pekerjaan/pembelajaran Anda sendiri.");
   const data = parsed.data;
-  const [upload] = await db.select().from(ujkUploads).where(and(eq(ujkUploads.id, data.uploadId), eq(ujkUploads.journeyId, journey.id), eq(ujkUploads.ownerId, owner)));
-  if (!upload) throw new UjkError(404, "Unggahan milik Anda tidak ditemukan.");
-  if (upload.finalized) { res.json(await journeyDetail(journey)); return; }
-  if (Date.now() - upload.createdAt.getTime() > 86400000) throw new UjkError(400, "Permintaan unggahan sudah kedaluwarsa. Unggah kembali berkas.");
-  const file = await ujkStorage.getObjectEntityFile(upload.objectPath);
-  const [metadata] = await file.getMetadata();
-  if (Number(metadata.size) !== upload.size || metadata.contentType !== upload.contentType) throw new UjkError(400, "Ukuran atau jenis berkas tidak sesuai dengan permintaan unggahan.");
-  // The PUT URL remains usable for 15 minutes. Freeze evidence into a new
-  // private object that has never had a participant-facing write URL.
-  const frozenFile = file.bucket.file(`${file.name}.evidence-${randomUUID()}`);
-  const snapshot = file.bucket.file(file.name, { generation: metadata.generation });
-  await snapshot.copy(frozenFile, { preconditionOpts: { ifGenerationMatch: 0 } });
-  const frozenPath = ujkStorage.normalizeObjectEntityPath(`https://storage.googleapis.com/${frozenFile.bucket.name}/${frozenFile.name}`);
-  await ujkStorage.trySetObjectEntityAclPolicy(frozenPath, { owner, visibility: "private" });
-  await db.transaction(async tx => {
-    const [finalized] = await tx.update(ujkUploads).set({
-      title: data.title, description: data.description, valid: data.valid, authentic: data.authentic,
-      current: data.current, sufficient: data.sufficient, finalized: true, finalizedAt: new Date(), objectPath: frozenPath,
-    }).where(and(eq(ujkUploads.id, upload.id), eq(ujkUploads.finalized, false))).returning();
-    if (finalized) await tx.insert(ujkEvents).values({ journeyId: journey.id, unitCode: upload.unitCode, kind: "evidence", summary: `Bukti ditambahkan: ${data.title}. Deklarasi peserta; menunggu review manusia.`, payload: { evidenceId: upload.id } });
-  });
+  await finalizeEvidence(owner, journey, data, ujkStorage);
   res.json(await journeyDetail(journey));
 }));
 

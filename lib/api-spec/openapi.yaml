@@ -77,7 +77,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "429":
-          description: Batas penggunaan sementara tercapai
+          description: Kuota AI per akun/IP, harian global, atau proses bersamaan tercapai
+          headers:
+            Retry-After:
+              description: Detik sebelum mencoba kembali
+              schema: { type: integer }
           content:
             application/json:
               schema:
@@ -191,6 +195,15 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/UjkUploadResponse" }
+        "429":
+          description: Kuota jumlah/byte permintaan atau staging tertunda per akun tercapai
+          headers:
+            Retry-After:
+              description: Detik sebelum mencoba kembali
+              schema: { type: integer }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
         default:
           description: Permintaan ditolak
           content:
@@ -211,6 +224,11 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+        "410":
+          description: Reservasi staging kedaluwarsa; unggah kembali berkas
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
         default:
           description: Permintaan ditolak
           content:

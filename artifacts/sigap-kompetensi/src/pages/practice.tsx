@@ -130,7 +130,7 @@ export default function Practice() {
               <button data-testid="button-start" disabled={(!!journeyId && !locked) || !role?.practiceAvailable || !sel?.unitCode || turn.isPending} onClick={() => run('start')} className="w-full bg-primary px-4 py-3 font-bold text-primary-foreground transition-transform active:scale-[.98] disabled:opacity-40">
                 {turn.isPending ? 'Agen sedang memproses…' : active ? 'Mulai ulang sesi' : 'Mulai sesi'}
               </button>
-              <p data-testid="text-ai-notice" className="mono text-[11px] leading-relaxed text-muted-foreground">Setiap giliran memakai AI dan ditagihkan ke kredit Replit.</p>
+              <p data-testid="text-ai-notice" className="mono text-[11px] leading-relaxed text-muted-foreground">Setiap giliran baru memakai AI dan ditagihkan ke kredit Replit. Batas: 20 giliran/jam per akun (IP untuk tamu), 200 giliran/hari seluruh layanan, dan 3 proses bersamaan. Reset mengikuti UTC. Mengulang permintaan latihan paspor yang sudah selesai tidak memakai kuota lagi.</p>
             </div>
 
             <div className="border border-border bg-card p-4">

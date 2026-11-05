@@ -111,7 +111,7 @@ export class ObjectStorageService {
     return new Response(webStream, { headers });
   }
 
-  async getObjectEntityUploadURL(): Promise<string> {
+  async getObjectEntityUploadURL(stagingPath?: string): Promise<string> {
     const privateObjectDir = this.getPrivateObjectDir();
     if (!privateObjectDir) {
       throw new Error(
@@ -120,8 +120,12 @@ export class ObjectStorageService {
       );
     }
 
-    const objectId = randomUUID();
-    const fullPath = `${privateObjectDir}/uploads/${objectId}`;
+    if (stagingPath && !/^\/objects\/staging\/[0-9a-f-]{36}$/.test(stagingPath)) {
+      throw new Error('Invalid staging path');
+    }
+    const fullPath = stagingPath
+      ? `${privateObjectDir}/${stagingPath.slice('/objects/'.length)}`
+      : `${privateObjectDir}/uploads/${randomUUID()}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 
@@ -134,6 +138,14 @@ export class ObjectStorageService {
   }
 
   async getObjectEntityFile(objectPath: string): Promise<File> {
+    const objectFile = this.getObjectEntityHandle(objectPath);
+    const [exists] = await objectFile.exists();
+    if (!exists) throw new ObjectNotFoundError();
+    return objectFile;
+  }
+
+  // A handle also works for absent objects, for idempotent staging cleanup.
+  getObjectEntityHandle(objectPath: string): File {
     if (!objectPath.startsWith('/objects/')) {
       throw new ObjectNotFoundError();
     }
@@ -152,10 +164,6 @@ export class ObjectStorageService {
     const { bucketName, objectName } = parseObjectPath(objectEntityPath);
     const bucket = objectStorageClient.bucket(bucketName);
     const objectFile = bucket.file(objectName);
-    const [exists] = await objectFile.exists();
-    if (!exists) {
-      throw new ObjectNotFoundError();
-    }
     return objectFile;
   }
 

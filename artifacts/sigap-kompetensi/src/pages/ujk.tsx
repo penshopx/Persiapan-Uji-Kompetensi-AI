@@ -198,13 +198,14 @@ function EvidenceTab({ id, d, onDone }: { id: string; d: UjkJourneyDetail; onDon
   const [busy, setBusy] = useState(false);
   const [uploadId, setUploadId] = useState<string | null>(null);
   const [uploadKey, setUploadKey] = useState('');
-  const key = file ? `${file.name}|${file.size}|${file.type}|${unitCode}` : '';
+  const ticket = useRef<{ key: string; id: string; url: string; expires: number } | null>(null);
+  const key = file ? `${id}|${file.name}|${file.size}|${file.type}|${unitCode}` : '';
 
   const pick = (f: File | null) => {
     setErr(null);
     if (f && !(ALLOWED as readonly string[]).includes(f.type)) { setErr('Hanya PDF, PNG, atau JPEG.'); return; }
     if (f && f.size > MAX) { setErr('Ukuran berkas maksimal 10 MB.'); return; }
-    setFile(f); setUploadId(null);
+    setFile(f); setUploadId(null); ticket.current = null;
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -214,17 +215,25 @@ function EvidenceTab({ id, d, onDone }: { id: string; d: UjkJourneyDetail; onDon
     try {
       let uid = uploadId && uploadKey === key ? uploadId : null;
       if (!uid) {
-        const r = await reqUp.mutateAsync({ id, data: { unitCode, name: file.name.slice(0, 200), size: file.size, contentType: file.type as (typeof ALLOWED)[number] } });
-        const put = await fetch(r.uploadURL, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+        if (!ticket.current || ticket.current.key !== key || ticket.current.expires <= Date.now()) {
+          const r = await reqUp.mutateAsync({ id, data: { unitCode, name: file.name.slice(0, 200), size: file.size, contentType: file.type as (typeof ALLOWED)[number] } });
+          ticket.current = { key, id: r.uploadId, url: r.uploadURL, expires: Date.now() + 14 * 60000 };
+        }
+        const put = await fetch(ticket.current.url, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
         if (!put.ok) throw new Error(`Unggah berkas gagal (${put.status}). Coba lagi.`);
-        uid = r.uploadId; setUploadId(uid); setUploadKey(key);
+        uid = ticket.current.id; setUploadId(uid); setUploadKey(key);
       }
       const detail = await create.mutateAsync({ id, data: { uploadId: uid, title: title.trim(), description: desc.trim(), ...c } });
       void detail;
-      setFile(null); setTitle(''); setDesc(''); setUploadId(null); setC({ valid: false, authentic: false, current: false, sufficient: false });
+      setFile(null); setTitle(''); setDesc(''); setUploadId(null); ticket.current = null; setC({ valid: false, authentic: false, current: false, sufficient: false });
       if (fileRef.current) fileRef.current.value = '';
       onDone();
-    } catch (x) { setErr(errMsg(x)); } finally { setBusy(false); }
+    } catch (x) {
+      setErr(errMsg(x));
+      if (typeof x === 'object' && x !== null && 'status' in x && x.status === 410) {
+        setUploadId(null); ticket.current = null;
+      }
+    } finally { setBusy(false); }
   };
 
   const claims: [keyof typeof c, string][] = [['valid', 'Valid'], ['authentic', 'Asli'], ['current', 'Terkini'], ['sufficient', 'Memadai']];
@@ -247,6 +256,7 @@ function EvidenceTab({ id, d, onDone }: { id: string; d: UjkJourneyDetail; onDon
         <p className="text-xs text-muted-foreground">Pernyataan di bawah adalah klaim Anda, bukan persetujuan peninjau. Berkas disimpan privat; jangan lampirkan NIK.</p>
         <label className="block"><span className="mono text-xs uppercase text-primary">Unit</span>
           <select data-testid="select-evidence-unit" className={field} value={unitCode} onChange={(e) => setUnitCode(e.target.value)}>{d.units.map((u) => <option key={u.code} value={u.code}>{u.code} - {u.title}</option>)}</select></label>
+        <p className="text-xs leading-relaxed text-muted-foreground">Per akun: 20 permintaan/jam, 50 permintaan atau 100 MB/hari (reset UTC). Maksimal 5 unggahan tertunda atau 30 MB. URL unggah berlaku 15 menit; staging kedaluwarsa setelah 24 jam dan dibersihkan otomatis. Bukti tersimpan dan riwayat tidak ikut dihapus.</p>
         <label className="block"><span className="mono text-xs uppercase text-primary">Berkas (PDF/PNG/JPEG, maks 10 MB)</span>
           <input ref={fileRef} data-testid="input-evidence-file" type="file" accept="application/pdf,image/png,image/jpeg" className={field} onChange={(e) => pick(e.target.files?.[0] ?? null)} /></label>
         {file && <p className="mono text-xs"><FileUp className="inline h-3 w-3" /> {file.name} · {(file.size / 1024).toFixed(0)} KB{uploadId && uploadKey === key ? ' · sudah terunggah, percobaan ulang tidak mengunggah lagi' : ''}</p>}

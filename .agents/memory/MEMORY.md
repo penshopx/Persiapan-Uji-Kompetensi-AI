@@ -2,3 +2,4 @@
 - [Kesiapan dan riwayat](readiness-decisions.md) — hasil terbaru menentukan kondisi persiapan; kegagalan K3 baru tidak ditutupi nilai tinggi sebelumnya.
 - [Batas tanggal API](api-date-boundaries.md) — parser request dapat menghasilkan Date; serialisasikan ulang sebelum memvalidasi respons JSON.
 - [Presisi timestamp database](database-timestamp-precision.md) — jangan memakai kesamaan timestamp hasil round-trip JS sebagai pengunci retry.
+- [Batas byte upload langsung](direct-upload-limits.md) — validasi metadata bukan hard cap transfer; jangan mengasumsikan dukungan policy ukuran pada signer App Storage.
