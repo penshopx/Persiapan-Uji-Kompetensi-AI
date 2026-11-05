@@ -5,6 +5,33 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface UjkNotification {
+  id: string;
+  kind: string;
+  message: string;
+  createdAt: string;
+  /** @nullable */
+  deadline: string | null;
+  /** @nullable */
+  readAt: string | null;
+  canOpen: boolean;
+}
+
+export interface UjkNotificationPage {
+  items: UjkNotification[];
+  unreadCount: number;
+  /** @nullable */
+  nextCursor: string | null;
+}
+
+export interface UjkNotificationReceipt {
+  readAt: string;
+}
+
+export interface UjkNotificationDestination {
+  href: string;
+}
+
 export type UjkSchemeInputStatus = typeof UjkSchemeInputStatus[keyof typeof UjkSchemeInputStatus];
 
 
@@ -618,4 +645,8 @@ export interface PracticeTurnResponse {
 export interface ErrorResponse {
   error: string;
 }
+
+export type GetUjkNotificationsParams = {
+before?: string;
+};
 

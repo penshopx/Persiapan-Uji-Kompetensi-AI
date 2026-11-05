@@ -23,6 +23,7 @@ import type {
   CompetencyCatalog,
   CompetencySummary,
   ErrorResponse,
+  GetUjkNotificationsParams,
   HealthStatus,
   PracticeTurnInput,
   PracticeTurnResponse,
@@ -33,6 +34,9 @@ import type {
   UjkJourneyDetail,
   UjkJourneyInput,
   UjkJourneySummary,
+  UjkNotificationDestination,
+  UjkNotificationPage,
+  UjkNotificationReceipt,
   UjkPassport,
   UjkReviewConsentInput,
   UjkReviewInput,
@@ -1664,4 +1668,221 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getSubmitUjkSimulationMutationOptions(options));
     }
+
+export const getGetUjkNotificationsUrl = (params?: GetUjkNotificationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/ujk/notifications?${stringifiedParams}` : `/api/ujk/notifications`
+}
+
+export const getUjkNotifications = async (params?: GetUjkNotificationsParams, options?: Parameters<typeof customFetch>[1]): Promise<UjkNotificationPage> => {
+
+  return customFetch<UjkNotificationPage>(getGetUjkNotificationsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUjkNotificationsQueryKey = (params?: GetUjkNotificationsParams,) => {
+    return [
+    `/api/ujk/notifications`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetUjkNotificationsQueryOptions = <TData = Awaited<ReturnType<typeof getUjkNotifications>>, TError = ErrorType<unknown>>(params?: GetUjkNotificationsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUjkNotificationsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUjkNotifications>>> = ({ signal }) => getUjkNotifications(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUjkNotifications>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUjkNotificationsQueryResult = NonNullable<Awaited<ReturnType<typeof getUjkNotifications>>>
+export type GetUjkNotificationsQueryError = ErrorType<unknown>
+
+
+
+export function useGetUjkNotifications<TData = Awaited<ReturnType<typeof getUjkNotifications>>, TError = ErrorType<unknown>>(
+ params?: GetUjkNotificationsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUjkNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUjkNotificationsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReadUjkNotificationUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/notifications/${id}/read`
+}
+
+export const readUjkNotification = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<UjkNotificationReceipt> => {
+
+  return customFetch<UjkNotificationReceipt>(getReadUjkNotificationUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getReadUjkNotificationMutationKey = () => ['readUjkNotification'] as const;
+
+export const getReadUjkNotificationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof readUjkNotification>>, TError,ReadUjkNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof readUjkNotification>>, TError,ReadUjkNotificationMutationVariables, TContext> => {
+
+const mutationKey = getReadUjkNotificationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof readUjkNotification>>, ReadUjkNotificationMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  readUjkNotification(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReadUjkNotificationMutationResult = NonNullable<Awaited<ReturnType<typeof readUjkNotification>>>
+
+    export type ReadUjkNotificationMutationError = ErrorType<unknown>
+    export type ReadUjkNotificationMutationVariables = {id: string}
+
+    export const useReadUjkNotification = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof readUjkNotification>>, TError,ReadUjkNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof readUjkNotification>>,
+        TError,
+        ReadUjkNotificationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReadUjkNotificationMutationOptions(options));
+    }
+
+export const getOpenUjkNotificationUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/notifications/${id}/open`
+}
+
+export const openUjkNotification = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<UjkNotificationDestination> => {
+
+  return customFetch<UjkNotificationDestination>(getOpenUjkNotificationUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getOpenUjkNotificationQueryKey = (id: string,) => {
+    return [
+    `/api/ujk/notifications/${id}/open`
+    ] as const;
+    }
+
+
+export const getOpenUjkNotificationQueryOptions = <TData = Awaited<ReturnType<typeof openUjkNotification>>, TError = ErrorType<unknown>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof openUjkNotification>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOpenUjkNotificationQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof openUjkNotification>>> = ({ signal }) => openUjkNotification(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof openUjkNotification>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type OpenUjkNotificationQueryResult = NonNullable<Awaited<ReturnType<typeof openUjkNotification>>>
+export type OpenUjkNotificationQueryError = ErrorType<unknown>
+
+
+
+export function useOpenUjkNotification<TData = Awaited<ReturnType<typeof openUjkNotification>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof openUjkNotification>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getOpenUjkNotificationQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 

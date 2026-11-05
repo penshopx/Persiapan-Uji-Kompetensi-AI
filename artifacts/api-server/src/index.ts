@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { startStagingCleanup } from "./lib/staging-cleanup";
+import { startNotificationReminders } from "./lib/ujk-notifications";
 
 const rawPort = process.env["PORT"];
 
@@ -24,4 +25,5 @@ app.listen(port, (err) => {
 
   logger.info({ port }, "Server listening");
   startStagingCleanup();
+  startNotificationReminders();
 });

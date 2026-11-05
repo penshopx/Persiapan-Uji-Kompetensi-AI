@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'wouter';
+import { Link, useParams, useSearch } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { Download, FileUp, PlayCircle } from 'lucide-react';
 import {
@@ -24,7 +24,12 @@ function Err({ m }: { m: string | null }) {
 export default function Ujk() {
   const { id = '' } = useParams<{ id: string }>();
   const q = useJourney(id);
-  const [tab, setTab] = useState<Tab>('unit');
+  const search = useSearch();
+  const requestedTab = new URLSearchParams(search).get('tab');
+  const [tab, setTab] = useState<Tab>(tabs.some(([key]) => key === requestedTab) ? requestedTab as Tab : 'unit');
+  useEffect(() => {
+    if (tabs.some(([key]) => key === requestedTab)) setTab(requestedTab as Tab);
+  }, [requestedTab]);
   const history = usePagedHistory(id);
   const invalidate = useInvalidateJourney();
   const qc = useQueryClient();
@@ -46,6 +51,7 @@ export default function Ujk() {
     <div className="space-y-6">
       <div className="rise">
         <Link href="/paspor" data-testid="link-back-passport" className="mono text-xs uppercase text-primary">&larr; Paspor</Link>
+        <Link href="/notifikasi" className="ml-4 text-xs font-bold text-primary">Pemberitahuan</Link>
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight md:text-4xl">{j.title}</h1>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <span data-testid="status-journey" className="panel-light px-3 py-1 text-sm font-extrabold">{statusText[j.status]}</span>

@@ -3,3 +3,4 @@
 - [Batas tanggal API](api-date-boundaries.md) — parser request dapat menghasilkan Date; serialisasikan ulang sebelum memvalidasi respons JSON.
 - [Presisi timestamp database](database-timestamp-precision.md) — jangan memakai kesamaan timestamp hasil round-trip JS sebagai pengunci retry.
 - [Batas byte upload langsung](direct-upload-limits.md) — validasi metadata bukan hard cap transfer; jangan mengasumsikan dukungan policy ukuran pada signer App Storage.
+- [Privasi pemberitahuan](notification-privacy.md) — riwayat pengiriman bukan hak akses; pencabutan izin harus menyamarkan pesan dan menutup tautan kasus.

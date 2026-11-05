@@ -5,6 +5,7 @@ import { useAuth, useClerk, useUser } from '@clerk/react';
 import { LogoMark } from '@/components/logo';
 import { useHealthCheck, getHealthCheckQueryKey } from '@workspace/api-client-react';
 import { Disclaimer } from '@/components/bits';
+import { NotificationNav } from '@/pages/notifications';
 
 const nav = [
   { href: '/', label: 'Dasbor' },
@@ -20,7 +21,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { user } = useUser();
-  const items = isSignedIn ? [{ href: '/paspor', label: 'Paspor' }, { href: '/review', label: 'Tinjauan' }, ...nav] : nav;
+  const items = isSignedIn ? [{ href: '/paspor', label: 'Paspor' }, { href: '/review', label: 'Tinjauan' }, { href: '/notifikasi', label: 'Pemberitahuan' }, ...nav] : nav;
   useEffect(() => {
     const label = [{ href: '/paspor', label: 'Paspor' }, { href: '/review', label: 'Tinjauan' }, ...nav].find((n) => (n.href === '/' ? loc === '/' : loc.startsWith(n.href)))?.label ?? (loc.startsWith('/ujk/') ? 'Perjalanan UJK' : undefined) ?? 'Halaman tidak ditemukan';
     const descriptions: Record<string, string> = {
@@ -50,7 +51,7 @@ export function Layout({ children }: { children: ReactNode }) {
               return (
                 <Link key={n.href} href={n.href} data-testid={`link-nav-${n.label.toLowerCase()}`}
                   className={`relative px-4 py-2 text-sm font-bold transition-colors ${active ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                  {n.label}
+                  {n.label}{n.href === '/notifikasi' && <NotificationNav />}
                 </Link>
               );
             })}

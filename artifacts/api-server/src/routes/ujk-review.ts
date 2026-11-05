@@ -9,6 +9,7 @@ import { assignedJourney, caseJourney, isManager, requireManager } from "../lib/
 import { isReviewAuthorized, reviewAccess, simulationFingerprint, simulationWorkFingerprint, schemeIsCurrent } from "../lib/ujk-review-state";
 import { serializeScheme } from "../lib/ujk-schemes";
 import { guarded } from "./ujk";
+import { deliverReviewEvent } from "../lib/ujk-notifications";
 
 const router = Router();
 
@@ -20,7 +21,7 @@ async function workspace(actorId: string) {
   for (const journey of journeys) {
     const events = await db.select().from(ujkEvents).where(eq(ujkEvents.journeyId, journey.id)).orderBy(asc(ujkEvents.id));
     const access = reviewAccess(events);
-    if (manager || (access.reviewerId === actorId && journey.ownerId !== actorId)) cases.push({
+    if (manager || isReviewAuthorized(journey.ownerId, actorId, access)) cases.push({
       id: journey.id, roleId: journey.roleId, title: catalog.roles.find(r => r.id === journey.roleId)?.title ?? journey.roleId,
       reviewerId: access.reviewerId, consent: access.consent, canReview: isReviewAuthorized(journey.ownerId, actorId, access),
     });
@@ -66,10 +67,11 @@ router.post("/ujk/journeys/:id/assignment", guarded(async (req, res, actor) => {
   }
   await db.transaction(async tx => {
     await tx.execute(sql`SELECT id FROM ujk_journeys WHERE id = ${journey.id} FOR UPDATE`);
-    await tx.insert(ujkEvents).values({
+    const [event] = await tx.insert(ujkEvents).values({
       journeyId: journey.id, kind: "reviewer_assignment", summary: `Penetapan reviewer: ${reason}`,
       payload: { actorId: actor, reviewerId, reason },
-    });
+    }).returning();
+    await deliverReviewEvent(tx, journey, event);
   });
   res.json(await workspace(actor));
 }));
@@ -83,10 +85,11 @@ router.post("/ujk/journeys/:id/review-consent", guarded(async (req, res, actor) 
     const events = await tx.select().from(ujkEvents).where(eq(ujkEvents.journeyId, journey.id)).orderBy(asc(ujkEvents.id));
     const access = reviewAccess(events);
     if (!access.reviewerId || access.assignmentId !== parsed.data.assignmentId) throw new UjkError(409, "Reviewer telah berubah; muat ulang sebelum menyetujui akses.");
-    await tx.insert(ujkEvents).values({
+    const [event] = await tx.insert(ujkEvents).values({
       journeyId: journey.id, kind: "review_consent", summary: parsed.data.consent ? "Peserta menyetujui akses reviewer ke kasus dan bukti privat." : "Peserta mencabut akses reviewer ke kasus dan bukti privat.",
       payload: { ...parsed.data, actorId: actor },
-    });
+    }).returning();
+    await deliverReviewEvent(tx, journey, event);
   });
   res.json(await journeyDetail(journey));
 }));
@@ -150,11 +153,12 @@ router.post("/ujk/journeys/:id/review", guarded(async (req, res, actor) => {
       if (data.accepted && submission.payload.schemeId !== String(scheme?.id)) throw new UjkError(409, "Paket skema berubah; peserta harus mengajukan simulasi ulang.");
       if (data.accepted && submission.payload.practiceSnapshot !== simulationWorkFingerprint(events)) throw new UjkError(409, "Latihan, K3 atau bukti berubah sejak pengajuan; peserta harus mengajukan simulasi ulang.");
     }
-    await tx.insert(ujkEvents).values({
+    const [event] = await tx.insert(ujkEvents).values({
       journeyId: journey.id, kind: data.kind, unitCode,
       summary: `${data.kind === "evidence_review" ? "Review bukti" : "Review simulasi"} ${data.accepted ? "diterima" : "ditolak"}: ${data.reason}`,
       payload: { ...data, actorId: actor, assignmentId: access.assignmentId, consentId: access.consentId, schemeId: schemeVerified ? String(scheme.id) : null, fingerprint: simulationFingerprint(events, schemeVerified ? String(scheme.id) : null) },
-    });
+    }).returning();
+    await deliverReviewEvent(tx, journey, event);
   });
   res.json(await journeyDetail(journey));
 }));

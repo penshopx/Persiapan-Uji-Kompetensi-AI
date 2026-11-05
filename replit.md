@@ -64,3 +64,4 @@ Interface and responses are in Indonesian. Keep dark/light-blue contrast and leg
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- See `docs/ujk-notifications.md` for inbox privacy, reminder timing and notification regression checks.

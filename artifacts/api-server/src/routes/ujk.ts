@@ -17,6 +17,7 @@ export const ujkStorage = new ObjectStorageService();
 export const guarded = (fn: (req: Request, res: Response, owner: string) => Promise<void>) => async (req: Request, res: Response) => {
   try {
     const owner = getAuth(req).userId;
+    res.setHeader("Cache-Control", "private, no-store");
     if (!owner) { res.status(401).json({ error: "Masuk untuk mengakses paspor dan bukti pribadi." }); return; }
     if (req.get("origin")) {
       const origin = new URL(req.get("origin")!);

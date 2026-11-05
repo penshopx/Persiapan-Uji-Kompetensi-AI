@@ -1395,3 +1395,40 @@ export const SubmitUjkSimulationResponse = zod.object({
 })
 
 
+export const GetUjkNotificationsQueryParams = zod.object({
+  "before": zod.coerce.string().uuid().optional()
+})
+
+export const GetUjkNotificationsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "kind": zod.string(),
+  "message": zod.string(),
+  "createdAt": zod.string(),
+  "deadline": zod.string().nullable(),
+  "readAt": zod.string().nullable(),
+  "canOpen": zod.boolean()
+})),
+  "unreadCount": zod.number().int(),
+  "nextCursor": zod.string().nullable()
+})
+
+
+export const ReadUjkNotificationParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const ReadUjkNotificationResponse = zod.object({
+  "readAt": zod.string()
+})
+
+
+export const OpenUjkNotificationParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const OpenUjkNotificationResponse = zod.object({
+  "href": zod.string()
+})
+
+

@@ -20,7 +20,7 @@ try {
       CREATE OR REPLACE FUNCTION ujk_reject_audit_mutation() RETURNS trigger
       LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'UJK audit records are append-only'; END $$;
     `);
-    for (const table of ["ujk_events", "ujk_schemes"]) {
+    for (const table of ["ujk_events", "ujk_schemes", "ujk_notifications"]) {
       // Identifiers are fixed constants above, never user input.
       await tx.execute(sql.raw(`DROP TRIGGER IF EXISTS ujk_append_only ON ${table}; CREATE TRIGGER ujk_append_only BEFORE UPDATE OR DELETE OR TRUNCATE ON ${table} FOR EACH STATEMENT EXECUTE FUNCTION ujk_reject_audit_mutation();`));
     }

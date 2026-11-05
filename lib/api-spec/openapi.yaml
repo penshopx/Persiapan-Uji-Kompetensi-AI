@@ -366,6 +366,37 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/UjkJourneyDetail" }
+  /ujk/notifications:
+    get:
+      operationId: getUjkNotifications
+      parameters:
+        - { name: before, in: query, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Account inbox with current access redaction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkNotificationPage" }
+  /ujk/notifications/{id}/read:
+    post:
+      operationId: readUjkNotification
+      parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+      responses:
+        "200":
+          description: Idempotent read receipt, separate from audit
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkNotificationReceipt" }
+  /ujk/notifications/{id}/open:
+    get:
+      operationId: openUjkNotification
+      parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
+      responses:
+        "200":
+          description: Destination checked against current case authorization
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkNotificationDestination" }
 components:
   parameters:
     UjkJourneyId:
@@ -374,6 +405,36 @@ components:
       required: true
       schema: { type: string, format: uuid }
   schemas:
+    UjkNotification:
+      type: object
+      required: [id, kind, message, createdAt, deadline, readAt, canOpen]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string }
+        message: { type: string }
+        createdAt: { type: string }
+        deadline: { type: ["string", "null"] }
+        readAt: { type: ["string", "null"] }
+        canOpen: { type: boolean }
+    UjkNotificationPage:
+      type: object
+      required: [items, unreadCount, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/UjkNotification" }
+        unreadCount: { type: integer }
+        nextCursor: { type: ["string", "null"] }
+    UjkNotificationReceipt:
+      type: object
+      required: [readAt]
+      properties:
+        readAt: { type: string }
+    UjkNotificationDestination:
+      type: object
+      required: [href]
+      properties:
+        href: { type: string }
     UjkSchemeInput:
       type: object
       properties:

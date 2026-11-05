@@ -32,6 +32,7 @@ function Workspace() {
       <div className="rise">
         <p className="mono text-xs uppercase text-primary">Tinjauan manusia</p>
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight md:text-4xl">Ruang tinjauan</h1>
+        <Link href="/notifikasi" className="mt-2 inline-block text-sm font-bold text-primary">Pemberitahuan penugasan dan masa berlaku</Link>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Peninjau hanya melihat kasus yang ditugaskan dan disetujui pemilik. Status skema di bawah adalah catatan internal; tidak ada persetujuan resmi LSP atau BNSP yang diklaim di sini. {w.manager ? 'Akun Anda bertanda pengelola (ditentukan server).' : ''}</p>
       </div>
       <section data-testid="list-review-cases" className="space-y-2">

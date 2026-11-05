@@ -23,3 +23,4 @@ export * from "./ujk-uploads";
 export * from "./ujk-attempts";
 export * from "./ujk-schemes";
 export * from "./resource-quotas";
+export * from "./ujk-notifications";
