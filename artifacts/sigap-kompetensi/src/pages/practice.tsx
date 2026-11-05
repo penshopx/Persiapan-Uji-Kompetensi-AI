@@ -197,7 +197,7 @@ export default function Practice() {
                 )}
                 {last && last.agentRuns.length > 0 && (
                   <div className="flex flex-wrap gap-2" data-testid="list-agentruns">
-                    {last.agentRuns.map((a) => <span key={a.agentId} title={a.responsibility} className={`mono border px-2 py-1 text-[11px] ${a.status === 'complete' ? 'border-primary text-primary' : 'border-border text-muted-foreground'}`}>{a.agentName}: {a.status === 'complete' ? 'selesai' : 'dilewati'}</span>)}
+                    {last.agentRuns.map((a) => <span key={a.agentId} title={a.responsibility} className={`mono border px-2 py-1 text-[11px] ${a.status === 'complete' ? 'border-primary text-primary' : 'border-border text-muted-foreground'}`}>{a.agentName}: {a.status === 'complete' ? 'selesai' : 'dilewati'}{a.status === 'complete' ? ` · ${a.runtime === 'hermes' ? 'Hermes' : a.runtime === 'openai' ? 'OpenAI' : a.runtime === 'local' ? 'lokal' : 'runtime tidak tercatat'}` : ''}</span>)}
                   </div>
                 )}
                 <div ref={endRef} />

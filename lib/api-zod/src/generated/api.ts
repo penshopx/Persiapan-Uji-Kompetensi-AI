@@ -72,6 +72,13 @@ export const GetCompetencyCatalogResponse = zod.object({
  * @summary Mendapatkan ringkasan kesiapan katalog
  */
 export const GetCompetencySummaryResponse = zod.object({
+  "runtime": zod.object({
+  "selected": zod.enum(['openai', 'hermes']),
+  "status": zod.enum(['ready', 'not_configured', 'unavailable', 'unsafe']),
+  "message": zod.string(),
+  "checkedAt": zod.string(),
+  "hermesConfigured": zod.boolean()
+}).optional(),
   "classificationCount": zod.number().int(),
   "roleCount": zod.number().int(),
   "unitCount": zod.number().int(),
@@ -133,6 +140,8 @@ export const CreatePracticeTurnResponse = zod.object({
   "note": zod.string()
 })),
   "agentRuns": zod.array(zod.object({
+  "runtime": zod.enum(['openai', 'hermes', 'local']).optional(),
+  "runId": zod.string().optional(),
   "agentId": zod.string(),
   "agentName": zod.string(),
   "responsibility": zod.string(),

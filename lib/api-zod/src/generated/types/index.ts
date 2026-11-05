@@ -8,7 +8,11 @@
 
 export * from './agentProfile';
 export * from './agentRun';
+export * from './agentRunRuntime';
 export * from './agentRunStatus';
+export * from './agentRuntimeStatus';
+export * from './agentRuntimeStatusSelected';
+export * from './agentRuntimeStatusStatus';
 export * from './competencyCatalog';
 export * from './competencyClassification';
 export * from './competencyStandard';

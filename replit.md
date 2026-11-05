@@ -10,7 +10,7 @@ Ruang persiapan uji kompetensi konstruksi dengan katalog sumber standar dan lati
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- AI credentials are managed by Replit AI Integrations; do not print or manually modify them.
+- OpenAI credentials are managed by Replit AI Integrations; do not print or manually modify them. Hermes credentials must be requested through Replit Secrets, never chat or ordinary environment forms.
 
 ## Stack
 
@@ -37,7 +37,7 @@ Ruang persiapan uji kompetensi konstruksi dengan katalog sumber standar dan lati
 ## Architecture decisions
 
 - Start with a bounded, inspectable practice pipeline, not unconstrained autonomous agents that can browse or execute commands.
-- OpenAI through Replit AI Integrations currently powers generation. MultiClaw/Hermes is not installed or connected; do not claim otherwise.
+- `SIGAP_AGENT_RUNTIME` explicitly selects `openai` (default, Replit AI Integrations) or `hermes` (NousResearch Hermes Agent HTTP adapter). There is no runtime fallback. Hermes is not installed or connected in this workspace yet; adapter availability is not a live connection. See `docs/hermes-runtime.md` for the contract and activation gates. MultiClaw is not used.
 - Generic practice retains browser-local history, separated by account namespace without silently migrating anonymous records. Practice launched from a UJK journey is also persisted server-side in the participant's passport.
 - Passport history is append-only in application flows: corrections add events, and participants cannot overwrite/delete prior entries.
 - Evidence is uploaded directly to a short-lived signed PUT URL, then finalized into a separate private object that has never had a participant-facing write URL. Downloads require both database ownership and private object ACL authorization.

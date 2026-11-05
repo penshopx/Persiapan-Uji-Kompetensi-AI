@@ -2,7 +2,8 @@ import { useGetCompetencySummary, getGetCompetencySummaryQueryKey } from '@works
 import { ErrorBlock, Skeleton } from '@/components/bits';
 
 export default function Agents() {
-  const sum = useGetCompetencySummary({ query: { queryKey: getGetCompetencySummaryQueryKey() } });
+  const sum = useGetCompetencySummary({ query: { queryKey: getGetCompetencySummaryQueryKey(), refetchInterval: 30000, staleTime: 0 } });
+  const runtime = sum.data?.runtime;
   return (
     <div className="space-y-8">
       <div className="rise">
@@ -11,8 +12,13 @@ export default function Agents() {
       </div>
       <section className="panel-light p-5" data-testid="panel-runtime">
         <h2 className="text-xl font-extrabold">Runtime yang sebenarnya</h2>
-        <p className="mt-2 max-w-3xl">Pipeline terbatas ini dijalankan oleh OpenAI melalui Replit AI Integrations. Runtime MultiClaw atau Hermes <b>tidak terpasang</b> di aplikasi ini. Setiap agen adalah tahap berperan khusus dengan batas tugas yang jelas, bukan proses otonom yang berjalan sendiri.</p>
-        <p className="sub mt-2 max-w-3xl text-sm">Pemakaian AI ditagihkan ke kredit Replit. Hasil evaluasi adalah umpan balik persiapan, bukan keputusan asesor atau sertifikasi.</p>
+        {sum.isLoading ? <p className="mt-2">Memeriksa runtime…</p> : sum.isError || !runtime ? <p className="mt-2">Status runtime belum dapat dimuat. Tidak ada koneksi yang diasumsikan berhasil.</p> : <>
+          <p className="mt-2 font-bold">{runtime.selected === 'hermes' ? 'Hermes Agent — NousResearch' : 'OpenAI — Replit AI Integrations'} · {({ ready: 'Pemeriksaan konfigurasi lulus', not_configured: 'Belum dikonfigurasi', unavailable: 'Tidak tersedia', unsafe: 'Diblokir demi keamanan' })[runtime.status]}</p>
+          <p className="mt-2 max-w-3xl" data-testid="runtime-message">{runtime.message}</p>
+          {runtime.selected !== 'hermes' && <p className="mt-2 max-w-3xl">Adapter Hermes tersedia, tetapi {runtime.hermesConfigured ? 'belum dipilih; koneksinya belum diverifikasi' : 'layanan dan kredensialnya belum dikonfigurasi'}. MultiClaw tidak digunakan.</p>}
+          <p className="sub mt-2 text-sm">Diperiksa: {new Date(runtime.checkedAt).toLocaleString('id-ID')}. Status diperbarui setiap 30 detik.</p>
+        </>}
+        <p className="sub mt-2 max-w-3xl text-sm">Peran agen adalah tahap terbatas, bukan proses otonom. Runtime tiap tahap yang selesai ditampilkan pada hasil latihan dan disimpan bersama hasil paspor. Tidak ada fallback runtime tersembunyi. Hasil AI bukan keputusan asesor atau sertifikasi.</p>
       </section>
       <section className="space-y-3">
         {sum.isLoading ? <Skeleton /> : sum.isError || !sum.data ? <ErrorBlock onRetry={() => sum.refetch()} /> : sum.data.agents.map((a, i) => (

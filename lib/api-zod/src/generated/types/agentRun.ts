@@ -5,9 +5,12 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AgentRunRuntime } from './agentRunRuntime';
 import type { AgentRunStatus } from './agentRunStatus';
 
 export interface AgentRun {
+  runtime?: AgentRunRuntime;
+  runId?: string;
   agentId: string;
   agentName: string;
   responsibility: string;

@@ -10,9 +10,9 @@ export class UjkError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 
-export async function ownedJourney(id: string, ownerId: string) {
+export async function ownedJourney(id: string, ownerId: string, store: Pick<typeof db, "select"> = db) {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) throw new UjkError(404, "Jalur persiapan tidak ditemukan.");
-  const [journey] = await db.select().from(ujkJourneys).where(and(eq(ujkJourneys.id, id), eq(ujkJourneys.ownerId, ownerId)));
+  const [journey] = await store.select().from(ujkJourneys).where(and(eq(ujkJourneys.id, id), eq(ujkJourneys.ownerId, ownerId)));
   if (!journey) throw new UjkError(404, "Jalur persiapan tidak ditemukan.");
   return journey;
 }

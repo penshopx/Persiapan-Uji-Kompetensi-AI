@@ -8,6 +8,7 @@ export const ujkAttempts = pgTable("ujk_attempts", {
   ownerId: text("owner_id").notNull(),
   journeyId: uuid("journey_id").notNull().references(() => ujkJourneys.id, { onDelete: "restrict" }),
   fingerprint: text("fingerprint").notNull(),
+  executionId: uuid("execution_id").notNull().defaultRandom(),
   state: text("state").notNull().default("pending"),
   response: jsonb("response").$type<Record<string, unknown>>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

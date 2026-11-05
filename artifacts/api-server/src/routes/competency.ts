@@ -1,11 +1,12 @@
 import { Router, type IRouter } from "express";
-import { CreatePracticeTurnBody } from "@workspace/api-zod";
+import { CreatePracticeTurnBody, GetCompetencySummaryResponse } from "@workspace/api-zod";
 import { catalog, summary, getPracticeContext } from "../lib/competency-catalog";
 import { runPracticeTurn } from "../lib/competency-agents";
 import { getAuth } from "@clerk/express";
 import { prepareJournal, completeJournal, failJournal, type Journal } from "../lib/ujk-practice-journal";
 import { UjkError } from "../lib/ujk-service";
 import { getClerkProxyHost } from "../middlewares/clerkProxyMiddleware";
+import { getRuntimeStatus } from "../lib/hermes-runtime";
 
 const router: IRouter = Router();
 const usage = new Map<string, { count: number; resetAt: number }>();
@@ -14,7 +15,10 @@ let globalCalls = 0;
 let activeCalls = 0;
 
 router.get("/competency/catalog", (_req, res) => { res.json(catalog); });
-router.get("/competency/summary", (_req, res) => { res.json(summary); });
+router.get("/competency/summary", async (_req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.json(GetCompetencySummaryResponse.parse({ ...summary, runtime: await getRuntimeStatus() }));
+});
 
 router.post("/agents/practice-turn", async (req, res): Promise<void> => {
   try {
@@ -68,7 +72,7 @@ router.post("/agents/practice-turn", async (req, res): Promise<void> => {
   globalCalls++;
   activeCalls++;
   try {
-    const result = await runPracticeTurn(context, input);
+    const result = await runPracticeTurn(context, input, getAuth(req).userId ?? undefined, journal?.executionId);
     await completeJournal(journal, input, result);
     res.json(result);
   } catch (error) {

@@ -6,8 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { AgentProfile } from './agentProfile';
+import type { AgentRuntimeStatus } from './agentRuntimeStatus';
 
 export interface CompetencySummary {
+  runtime?: AgentRuntimeStatus;
   classificationCount: number;
   roleCount: number;
   unitCount: number;

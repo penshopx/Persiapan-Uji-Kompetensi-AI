@@ -469,7 +469,34 @@ export interface AgentProfile {
   responsibility: string;
 }
 
+export type AgentRuntimeStatusSelected = typeof AgentRuntimeStatusSelected[keyof typeof AgentRuntimeStatusSelected];
+
+
+export const AgentRuntimeStatusSelected = {
+  openai: 'openai',
+  hermes: 'hermes',
+} as const;
+
+export type AgentRuntimeStatusStatus = typeof AgentRuntimeStatusStatus[keyof typeof AgentRuntimeStatusStatus];
+
+
+export const AgentRuntimeStatusStatus = {
+  ready: 'ready',
+  not_configured: 'not_configured',
+  unavailable: 'unavailable',
+  unsafe: 'unsafe',
+} as const;
+
+export interface AgentRuntimeStatus {
+  selected: AgentRuntimeStatusSelected;
+  status: AgentRuntimeStatusStatus;
+  message: string;
+  checkedAt: string;
+  hermesConfigured: boolean;
+}
+
 export interface CompetencySummary {
+  runtime?: AgentRuntimeStatus;
   classificationCount: number;
   roleCount: number;
   unitCount: number;
@@ -553,6 +580,15 @@ export interface SourceCitation {
   note: string;
 }
 
+export type AgentRunRuntime = typeof AgentRunRuntime[keyof typeof AgentRunRuntime];
+
+
+export const AgentRunRuntime = {
+  openai: 'openai',
+  hermes: 'hermes',
+  local: 'local',
+} as const;
+
 export type AgentRunStatus = typeof AgentRunStatus[keyof typeof AgentRunStatus];
 
 
@@ -562,6 +598,8 @@ export const AgentRunStatus = {
 } as const;
 
 export interface AgentRun {
+  runtime?: AgentRunRuntime;
+  runId?: string;
   agentId: string;
   agentName: string;
   responsibility: string;

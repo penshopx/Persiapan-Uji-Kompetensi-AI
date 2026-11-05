@@ -750,6 +750,8 @@ components:
     CompetencySummary:
       type: object
       properties:
+        runtime:
+          $ref: "#/components/schemas/AgentRuntimeStatus"
         classificationCount:
           type: integer
         roleCount:
@@ -763,6 +765,22 @@ components:
           items:
             $ref: "#/components/schemas/AgentProfile"
       required: [classificationCount, roleCount, unitCount, reviewCount, agents]
+    AgentRuntimeStatus:
+      type: object
+      properties:
+        selected:
+          type: string
+          enum: [openai, hermes]
+        status:
+          type: string
+          enum: [ready, not_configured, unavailable, unsafe]
+        message:
+          type: string
+        checkedAt:
+          type: string
+        hermesConfigured:
+          type: boolean
+      required: [selected, status, message, checkedAt, hermesConfigured]
     PracticeHistoryMessage:
       type: object
       properties:
@@ -844,6 +862,11 @@ components:
     AgentRun:
       type: object
       properties:
+        runtime:
+          type: string
+          enum: [openai, hermes, local]
+        runId:
+          type: string
         agentId:
           type: string
         agentName:
