@@ -4,3 +4,4 @@
 - [Presisi timestamp database](database-timestamp-precision.md) — jangan memakai kesamaan timestamp hasil round-trip JS sebagai pengunci retry.
 - [Batas byte upload langsung](direct-upload-limits.md) — validasi metadata bukan hard cap transfer; jangan mengasumsikan dukungan policy ukuran pada signer App Storage.
 - [Privasi pemberitahuan](notification-privacy.md) — riwayat pengiriman bukan hak akses; pencabutan izin harus menyamarkan pesan dan menutup tautan kasus.
+- [Semantik paket persiapan](preparation-export-decisions.md) — kesiapan historis seluruh paspor berbeda dari kelengkapan lampiran pilihan peserta.

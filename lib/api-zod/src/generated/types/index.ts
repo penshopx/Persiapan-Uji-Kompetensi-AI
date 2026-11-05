@@ -36,6 +36,8 @@ export * from './ujkCorrectionInput';
 export * from './ujkEvidence';
 export * from './ujkEvidenceInput';
 export * from './ujkEvidenceReviewStatus';
+export * from './ujkExport';
+export * from './ujkExportInput';
 export * from './ujkHistory';
 export * from './ujkHistoryEvent';
 export * from './ujkJourneyDetail';

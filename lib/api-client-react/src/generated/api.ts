@@ -30,6 +30,8 @@ import type {
   UjkAssignmentInput,
   UjkCorrectionInput,
   UjkEvidenceInput,
+  UjkExport,
+  UjkExportInput,
   UjkHistory,
   UjkJourneyDetail,
   UjkJourneyInput,
@@ -610,6 +612,306 @@ export function useGetUjkJourney<TData = Awaited<ReturnType<typeof getUjkJourney
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetUjkJourneyQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListUjkExportsUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/exports`
+}
+
+export const listUjkExports = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<UjkExport[]> => {
+
+  return customFetch<UjkExport[]>(getListUjkExportsUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListUjkExportsQueryKey = (id: string,) => {
+    return [
+    `/api/ujk/journeys/${id}/exports`
+    ] as const;
+    }
+
+
+export const getListUjkExportsQueryOptions = <TData = Awaited<ReturnType<typeof listUjkExports>>, TError = ErrorType<unknown>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUjkExports>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListUjkExportsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUjkExports>>> = ({ signal }) => listUjkExports(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUjkExports>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListUjkExportsQueryResult = NonNullable<Awaited<ReturnType<typeof listUjkExports>>>
+export type ListUjkExportsQueryError = ErrorType<unknown>
+
+
+
+export function useListUjkExports<TData = Awaited<ReturnType<typeof listUjkExports>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUjkExports>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListUjkExportsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateUjkExportUrl = (id: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/exports`
+}
+
+export const createUjkExport = async (id: string,
+    ujkExportInput: UjkExportInput, options?: Parameters<typeof customFetch>[1]): Promise<UjkExport> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UjkExport>(getCreateUjkExportUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ujkExportInput)
+  }
+);}
+
+
+
+
+
+export const getCreateUjkExportMutationKey = () => ['createUjkExport'] as const;
+
+export const getCreateUjkExportMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkExport>>, TError,CreateUjkExportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUjkExport>>, TError,CreateUjkExportMutationVariables, TContext> => {
+
+const mutationKey = getCreateUjkExportMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUjkExport>>, CreateUjkExportMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  createUjkExport(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUjkExportMutationResult = NonNullable<Awaited<ReturnType<typeof createUjkExport>>>
+    export type CreateUjkExportMutationBody = BodyType<UjkExportInput>
+    export type CreateUjkExportMutationError = ErrorType<void>
+    export type CreateUjkExportMutationVariables = {id: string;data: BodyType<UjkExportInput>}
+
+    export const useCreateUjkExport = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUjkExport>>, TError,CreateUjkExportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createUjkExport>>,
+        TError,
+        CreateUjkExportMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUjkExportMutationOptions(options));
+    }
+
+export const getRevokeUjkExportUrl = (id: string,
+    exportId: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/exports/${exportId}/revoke`
+}
+
+export const revokeUjkExport = async (id: string,
+    exportId: string, options?: Parameters<typeof customFetch>[1]): Promise<UjkExport> => {
+
+  return customFetch<UjkExport>(getRevokeUjkExportUrl(id,exportId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRevokeUjkExportMutationKey = () => ['revokeUjkExport'] as const;
+
+export const getRevokeUjkExportMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeUjkExport>>, TError,RevokeUjkExportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeUjkExport>>, TError,RevokeUjkExportMutationVariables, TContext> => {
+
+const mutationKey = getRevokeUjkExportMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeUjkExport>>, RevokeUjkExportMutationVariables> = (props) => {
+          const {id,exportId} = props ?? {};
+
+          return  revokeUjkExport(id,exportId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeUjkExportMutationResult = NonNullable<Awaited<ReturnType<typeof revokeUjkExport>>>
+
+    export type RevokeUjkExportMutationError = ErrorType<unknown>
+    export type RevokeUjkExportMutationVariables = {id: string;exportId: string}
+
+    export const useRevokeUjkExport = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeUjkExport>>, TError,RevokeUjkExportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeUjkExport>>,
+        TError,
+        RevokeUjkExportMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRevokeUjkExportMutationOptions(options));
+    }
+
+export const getDownloadUjkExportUrl = (id: string,
+    exportId: string,) => {
+
+
+
+
+  return `/api/ujk/journeys/${id}/exports/${exportId}/download`
+}
+
+export const downloadUjkExport = async (id: string,
+    exportId: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadUjkExportUrl(id,exportId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadUjkExportQueryKey = (id: string,
+    exportId: string,) => {
+    return [
+    `/api/ujk/journeys/${id}/exports/${exportId}/download`
+    ] as const;
+    }
+
+
+export const getDownloadUjkExportQueryOptions = <TData = Awaited<ReturnType<typeof downloadUjkExport>>, TError = ErrorType<void>>(id: string,
+    exportId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadUjkExport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadUjkExportQueryKey(id,exportId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadUjkExport>>> = ({ signal }) => downloadUjkExport(id,exportId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined && exportId !== null && exportId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadUjkExport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadUjkExportQueryResult = NonNullable<Awaited<ReturnType<typeof downloadUjkExport>>>
+export type DownloadUjkExportQueryError = ErrorType<void>
+
+
+
+export function useDownloadUjkExport<TData = Awaited<ReturnType<typeof downloadUjkExport>>, TError = ErrorType<void>>(
+ id: string,
+    exportId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadUjkExport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadUjkExportQueryOptions(id,exportId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

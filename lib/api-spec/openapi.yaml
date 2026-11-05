@@ -140,6 +140,59 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /ujk/journeys/{id}/exports:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: listUjkExports
+      responses:
+        "200":
+          description: Owner-only preparation exports
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/UjkExport" } }
+    post:
+      operationId: createUjkExport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UjkExportInput" }
+      responses:
+        "201":
+          description: Private preparation package created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkExport" }
+        "400": { description: Invalid selection or missing consent }
+        "409": { description: Readiness snapshot changed }
+        "413": { description: Package exceeds limits }
+  /ujk/journeys/{id}/exports/{exportId}/revoke:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: exportId, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: revokeUjkExport
+      responses:
+        "200":
+          description: Owner access revoked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UjkExport" }
+  /ujk/journeys/{id}/exports/{exportId}/download:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: exportId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: downloadUjkExport
+      responses:
+        "200":
+          description: Owner-only ZIP, no signed public link
+          content:
+            application/zip:
+              schema: { type: string, format: binary }
+        "404": { description: Not found or not owned }
+        "410": { description: Expired or revoked }
   /ujk/journeys/{id}/self-assessment:
     parameters: [{ $ref: "#/components/parameters/UjkJourneyId" }]
     post:
@@ -475,6 +528,32 @@ components:
         reviewerId: { type: string, maxLength: 200 }
         reason: { type: string, minLength: 3, maxLength: 2000 }
       required: [reviewerId, reason]
+    UjkExportInput:
+      type: object
+      required: [evidenceIds, consent, lastEventId, schemeId]
+      properties:
+        evidenceIds:
+          type: array
+          maxItems: 20
+          uniqueItems: true
+          items: { type: string, format: uuid }
+        consent: { type: boolean, enum: [true] }
+        lastEventId: { type: integer, minimum: 0 }
+        schemeId: { type: ["string", "null"] }
+    UjkExport:
+      type: object
+      required: [id, createdAt, expiresAt, revokedAt, snapshotAt, readinessStatus, evidenceCount, size, sha256, downloadUrl]
+      properties:
+        id: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        revokedAt: { type: ["string", "null"], format: date-time }
+        snapshotAt: { type: string, format: date-time }
+        readinessStatus: { type: string }
+        evidenceCount: { type: integer }
+        size: { type: integer }
+        sha256: { type: string }
+        downloadUrl: { type: string }
     UjkReviewConsentInput:
       type: object
       properties:

@@ -121,6 +121,30 @@ export interface UjkAssignmentInput {
   reason: string;
 }
 
+export interface UjkExportInput {
+  /** @maxItems 20 */
+  evidenceIds: string[];
+  consent: true;
+  /** @minimum 0 */
+  lastEventId: number;
+  /** @nullable */
+  schemeId: string | null;
+}
+
+export interface UjkExport {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  /** @nullable */
+  revokedAt: string | null;
+  snapshotAt: string;
+  readinessStatus: string;
+  evidenceCount: number;
+  size: number;
+  sha256: string;
+  downloadUrl: string;
+}
+
 export interface UjkReviewConsentInput {
   /** @minimum 1 */
   assignmentId: number;

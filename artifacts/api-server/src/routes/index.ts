@@ -5,6 +5,7 @@ import ujkRouter from "./ujk";
 import storageRouter from "./storage";
 import ujkReviewRouter from "./ujk-review";
 import ujkNotificationsRouter from "./ujk-notifications";
+import ujkExportsRouter from "./ujk-exports";
 
 const router: IRouter = Router();
 
@@ -13,6 +14,7 @@ router.use(competencyRouter);
 router.use(ujkRouter);
 router.use(ujkReviewRouter);
 router.use(ujkNotificationsRouter);
+router.use(ujkExportsRouter);
 router.use(storageRouter);
 
 export default router;

@@ -290,6 +290,83 @@ export const GetUjkJourneyResponse = zod.object({
 })
 
 
+export const ListUjkExportsParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const ListUjkExportsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "createdAt": zod.coerce.date(),
+  "expiresAt": zod.coerce.date(),
+  "revokedAt": zod.coerce.date().nullable(),
+  "snapshotAt": zod.coerce.date(),
+  "readinessStatus": zod.string(),
+  "evidenceCount": zod.number().int(),
+  "size": zod.number().int(),
+  "sha256": zod.string(),
+  "downloadUrl": zod.string()
+})
+export const ListUjkExportsResponse = zod.array(ListUjkExportsResponseItem)
+
+
+export const CreateUjkExportParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const createUjkExportBodyEvidenceIdsMax = 20;
+
+export const createUjkExportBodyLastEventIdMin = 0;
+
+
+
+export const CreateUjkExportBody = zod.object({
+  "evidenceIds": zod.array(zod.string().uuid()).max(createUjkExportBodyEvidenceIdsMax),
+  "consent": zod.literal(true),
+  "lastEventId": zod.number().int().min(createUjkExportBodyLastEventIdMin),
+  "schemeId": zod.string().nullable()
+})
+
+export const CreateUjkExportResponse = zod.object({
+  "id": zod.string().uuid(),
+  "createdAt": zod.coerce.date(),
+  "expiresAt": zod.coerce.date(),
+  "revokedAt": zod.coerce.date().nullable(),
+  "snapshotAt": zod.coerce.date(),
+  "readinessStatus": zod.string(),
+  "evidenceCount": zod.number().int(),
+  "size": zod.number().int(),
+  "sha256": zod.string(),
+  "downloadUrl": zod.string()
+})
+
+
+export const RevokeUjkExportParams = zod.object({
+  "id": zod.coerce.string().uuid(),
+  "exportId": zod.coerce.string().uuid()
+})
+
+export const RevokeUjkExportResponse = zod.object({
+  "id": zod.string().uuid(),
+  "createdAt": zod.coerce.date(),
+  "expiresAt": zod.coerce.date(),
+  "revokedAt": zod.coerce.date().nullable(),
+  "snapshotAt": zod.coerce.date(),
+  "readinessStatus": zod.string(),
+  "evidenceCount": zod.number().int(),
+  "size": zod.number().int(),
+  "sha256": zod.string(),
+  "downloadUrl": zod.string()
+})
+
+
+export const DownloadUjkExportParams = zod.object({
+  "id": zod.coerce.string().uuid(),
+  "exportId": zod.coerce.string().uuid()
+})
+
+export const DownloadUjkExportResponse = zod.unknown()
+
+
 export const CreateUjkSelfAssessmentParams = zod.object({
   "id": zod.coerce.string().uuid()
 })

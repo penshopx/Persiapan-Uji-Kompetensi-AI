@@ -29,7 +29,7 @@ async function workspace(actorId: string) {
   // Entire revision history is preserved and visible to managers. Reviewers see latest per role.
   const rows = await db.select().from(ujkSchemes).orderBy(desc(ujkSchemes.id));
   const schemes = manager ? rows : rows.filter((row, i) => rows.findIndex(r => r.roleId === row.roleId) === i);
-  return api.GetUjkReviewWorkspaceResponse.parse({ manager, cases, schemes: schemes.map(serializeScheme) });
+  return api.GetUjkReviewWorkspaceResponse.parse({ manager, cases, schemes: schemes.map(row => serializeScheme(row)) });
 }
 
 router.get("/ujk/review-workspace", guarded(async (_req, res, actor) => { res.json(await workspace(actor)); }));

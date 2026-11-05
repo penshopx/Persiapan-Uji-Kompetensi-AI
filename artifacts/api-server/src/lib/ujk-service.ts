@@ -21,17 +21,17 @@ export function requireJourneyUnit(journey: UjkJourney, code: string) {
   if (!journey.unitCodes.includes(code)) throw new UjkError(400, "Unit tidak termasuk dalam jalur persiapan ini.");
 }
 
-export async function journeyDetail(journey: UjkJourney) {
-  const events = await db.select().from(ujkEvents).where(eq(ujkEvents.journeyId, journey.id)).orderBy(asc(ujkEvents.id));
-  const files = await db.select().from(ujkUploads).where(and(eq(ujkUploads.journeyId, journey.id), eq(ujkUploads.finalized, true)));
-  const scheme = await latestScheme(journey.roleId);
-  const schemeVerified = schemeIsCurrent(scheme, journey.unitCodes);
+export async function journeyDetail(journey: UjkJourney, store: Pick<typeof db, "select"> = db, now = new Date()) {
+  const events = await store.select().from(ujkEvents).where(eq(ujkEvents.journeyId, journey.id)).orderBy(asc(ujkEvents.id));
+  const files = await store.select().from(ujkUploads).where(and(eq(ujkUploads.journeyId, journey.id), eq(ujkUploads.finalized, true)));
+  const scheme = await latestScheme(journey.roleId, store);
+  const schemeVerified = schemeIsCurrent(scheme, journey.unitCodes, now);
   const schemeId = schemeVerified ? String(scheme.id) : null;
   const access = reviewAccess(events);
   const evidence = files.map(file => {
     const review = [...events].reverse().find(e => e.kind === "evidence_review" && e.payload.evidenceId === file.id);
     const parsed = CreateUjkReviewBody.safeParse(review?.payload);
-    const effective = parsed.success && reviewIsCurrent(review!.payload, access, schemeId);
+    const effective = parsed.success && reviewIsCurrent(review!.payload, access, schemeId, now);
     return {
       id: file.id, unitCode: file.unitCode, title: file.title, description: file.description,
       fileName: file.fileName, size: file.size, contentType: file.contentType,
@@ -69,7 +69,7 @@ export async function journeyDetail(journey: UjkJourney) {
   const simulationPassed = parsedSimulationReview.success && !!submission &&
     simulationReview!.payload.simulationId === submission.id &&
     simulationReview!.payload.fingerprint === simulationFingerprint(events, schemeId) &&
-    reviewIsCurrent(simulationReview!.payload, access, schemeId);
+    reviewIsCurrent(simulationReview!.payload, access, schemeId, now);
   // A verified subset, not all units in a standards document, defines mandatory work.
   const requiredUnitCodes = schemeVerified ? scheme.unitCodes : [];
   const requiredUnits = schemeVerified ? units.filter(u => requiredUnitCodes.includes(u.code)) : units;
@@ -84,7 +84,7 @@ export async function journeyDetail(journey: UjkJourney) {
     evidence,
     safetyQuestions: safetyQuestions.map(({ correct: _correct, ...question }) => question),
     blockers: readiness.blockers, threshold: PRACTICE_THRESHOLD, simulationPassed,
-    scheme: scheme ? serializeScheme(scheme) : null, requiredUnitCodes,
+    scheme: scheme ? serializeScheme(scheme, now) : null, requiredUnitCodes,
     review: {
       ...access, lastEventId: events.at(-1)?.id ?? 0, simulationId: submission?.id ?? null,
       simulationReport: typeof submission?.payload.report === "string" ? submission.payload.report : null,

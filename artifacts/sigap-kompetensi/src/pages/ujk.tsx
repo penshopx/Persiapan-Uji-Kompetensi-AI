@@ -9,13 +9,14 @@ import {
 import { Empty, ErrorBlock, Skeleton } from '@/components/bits';
 import { useInvalidateJourney, useJourney, usePagedHistory } from '@/hooks/use-ujk';
 import { confidenceText, errMsg, fmtDate, statusText } from '@/lib/ujk';
+import { UjkExport } from '@/components/ujk-export';
 
 const field = 'w-full border-2 border-input bg-card px-3 py-3 outline-none focus:border-primary';
 const btn = 'bg-primary px-5 py-2.5 font-bold text-primary-foreground disabled:opacity-40';
 const ALLOWED = ['application/pdf', 'image/png', 'image/jpeg'] as const;
 const MAX = 10 * 1024 * 1024;
-type Tab = 'tinjau' | 'unit' | 'k3' | 'bukti' | 'koreksi' | 'riwayat';
-const tabs: [Tab, string][] = [['tinjau', 'Tinjauan'], ['unit', 'Penilaian diri'], ['k3', 'K3'], ['bukti', 'Bukti'], ['koreksi', 'Koreksi'], ['riwayat', 'Riwayat']];
+type Tab = 'tinjau' | 'unit' | 'k3' | 'bukti' | 'ekspor' | 'koreksi' | 'riwayat';
+const tabs: [Tab, string][] = [['tinjau', 'Tinjauan'], ['unit', 'Penilaian diri'], ['k3', 'K3'], ['bukti', 'Bukti'], ['ekspor', 'Paket LSP'], ['koreksi', 'Koreksi'], ['riwayat', 'Riwayat']];
 
 function Err({ m }: { m: string | null }) {
   return m ? <p role="alert" data-testid="text-form-error" className="border border-destructive/60 bg-destructive/10 p-3 text-sm">{m}</p> : null;
@@ -83,6 +84,7 @@ export default function Ujk() {
       {tab === 'unit' && <UnitsTab id={id} d={d} onDone={afterChange} />}
       {tab === 'k3' && <SafetyTab id={id} d={d} onDone={afterChange} />}
       {tab === 'bukti' && <EvidenceTab id={id} d={d} onDone={afterChange} />}
+      {tab === 'ekspor' && <UjkExport key={id} id={id} detail={d} onDone={afterChange} />}
       {tab === 'koreksi' && <CorrectionTab id={id} onDone={afterChange} />}
       {tab === 'riwayat' && (
         <section data-testid="list-history-events" className="space-y-3">
